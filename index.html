@@ -401,11 +401,11 @@ h1,h2,h3{margin:0;font-weight:400;}
       <div class="card" style="background:linear-gradient(135deg,#fff6e0,#ffe9e9);">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="font-size:40px;">⏱️</div>
-          <div><b style="font-size:17px;">쉬는 시간 10분 풀세트</b><br><span class="sub">거북목·굽은등·손목·하체 순환 한번에</span></div>
+          <div><b style="font-size:17px;">쉬는 시간 10분 풀세트</b><br><span class="sub">목·허리·손목·다리 순환 한번에</span></div>
         </div>
         <button class="btn coral" style="margin-top:14px;" onclick="startRoutine('ALL')">전체 루틴 시작 ▶</button>
       </div>
-      <div class="section-title">부위별 루틴</div>
+      <div class="section-title">부위별 스트레칭 <span class="tag safe">32개</span></div>
       <div id="stretch-list"></div>
     </div>
     <nav class="nav" id="nav-stretch"></nav>
@@ -765,38 +765,174 @@ function stageOf(lvl){let s=0;STAGES.forEach((st,i)=>{if(lvl>=st.from)s=i;});ret
 
 /* =================== EXERCISE CATALOG =================== */
 // impact: LOW/MID/HIGH  · anim: motion for placeholder figure
+/* 오늘의 맞춤 추천: Nobadaddiction 채널 쇼츠 — '인기순' 전체 + 최신 인기 영상, 카테고리별 전부 수록
+   (레시피·밈·동일 제목 재업로드 제외 / 각 카테고리 내 조회수 순 정렬) */
 const EX=[
- {id:'swim',name:'수영 (자유형)',part:'LOWER',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'20분',anim:'swim',vid:'D5HPXIy-NFY',
-  desc:'무릎·관절에 부담이 거의 없는 최고의 전신 유산소예요.',how:'물속에서 팔을 크게 저으며 규칙적으로 호흡. 천천히 오래!',tags:['저충격','관절보호']},
- {id:'chair-squat',name:'의자 스쿼트',part:'LOWER',goals:['FAT_LOSS','MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'12회 × 3세트',anim:'squat',vid:'FC-RnanqQg8',
-  desc:'의자에 살짝 앉았다 일어나는 안전한 하체 운동.',how:'의자 앞에 서서 엉덩이를 뒤로 빼며 앉기 직전까지 내렸다 일어서기.',tags:['저충격','초보']},
- {id:'walk',name:'빠르게 걷기',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'25분',anim:'walk',vid:'z0gmkEFUdDA',
-  desc:'심박을 올리면서도 무릎에 무리가 적은 유산소.',how:'팔을 흔들며 약간 숨찰 정도의 속도로 꾸준히.',tags:['저충격','유산소']},
- {id:'knee-pushup',name:'무릎 대고 푸시업',part:'UPPER',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'10회 × 3세트',anim:'pushup',vid:'XIZdCY0SKFM',
-  desc:'상체 근력을 키우는 기본 저항 운동의 쉬운 버전.',how:'무릎을 바닥에 대고 가슴이 바닥에 닿을 듯 내렸다 밀어올리기.',tags:['상체','근력']},
- {id:'band-row',name:'밴드 로우',part:'UPPER',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'12회 × 3세트',anim:'row',vid:'6XtVQ0s-xMw',
-  desc:'등과 팔을 탄탄하게. 굽은 등 교정에도 좋아요.',how:'밴드를 발에 걸고 손잡이를 배 쪽으로 당겨 날개뼈 모으기.',tags:['상체','자세교정']},
- {id:'plank',name:'플랭크',part:'CORE',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'30초 × 3세트',anim:'plank',vid:'qrXF3cp0yls',
-  desc:'코어 전체를 잡아주는 대표 버티기 운동.',how:'팔꿈치와 발끝으로 몸을 일직선으로. 엉덩이가 처지지 않게!',tags:['코어','안정성']},
- {id:'jumpingjack',name:'점핑잭',part:'FULL',goals:['STAMINA','FAT_LOSS'],impact:'HIGH',minLevel:3,reps:'30회 × 3세트',anim:'jack',vid:'AC9mHw71xEM',
-  desc:'전신 심폐 지구력을 빠르게 끌어올리는 유산소.',how:'점프하며 팔다리를 동시에 벌렸다 모으기.',tags:['전신','고강도']},
- {id:'legraise',name:'레그레이즈',part:'CORE',goals:['MUSCLE'],impact:'LOW',minLevel:2,reps:'12회 × 3세트',anim:'legraise',vid:'JtfU70aO2f0',
-  desc:'하복부 코어를 집중 자극.',how:'누워서 다리를 곧게 펴 천천히 올렸다 내리기.',tags:['코어','복부']},
- {id:'calf',name:'카프레이즈',part:'LOWER',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'15회 × 3세트',anim:'calf',vid:'avAzEHwz0VY',
-  desc:'종아리 근력. 서서 어디서나 가능.',how:'발뒤꿈치를 천천히 최대한 들었다 내리기.',tags:['하체','초보']},
+ // ── 상체 (UPPER) ──
+ {id:'headstand',name:'물구나무 서기 도전',part:'UPPER',goals:['MUSCLE','STAMINA'],impact:'MID',minLevel:3,reps:'단계별 연습',anim:'plank',vid:'RG50uRe1jCI',
+  desc:'어깨·팔·코어를 한 번에! 초보자용 단계별 물구나무 가이드.',how:'매트 위, 벽 앞에서 연습 → 팔꿈치와 손으로 삼각대를 만들고 머리를 고정 → 영상의 단계를 순서대로, 절대 서두르지 않기!',tags:['도전','상급']},
+ {id:'pushup-form',name:'푸시업 (정확한 자세)',part:'UPPER',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'10회 × 3세트',anim:'pushup',vid:'RB4Sx1j6Lrg',
+  desc:'가슴·팔·코어를 만드는 푸시업, 제대로 하는 법.',how:'손을 어깨 너비보다 살짝 넓게 → 몸을 일직선으로 유지한 채 가슴이 바닥에 닿을 듯 내리기 → 팔꿈치가 옆으로 너무 벌어지지 않게.',tags:['상체','기본기']},
+ {id:'upper-basic',name:'상체 기본 운동 세트',part:'UPPER',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'각 12회 × 2세트',anim:'row',vid:'33RcxPKQNIE',
+  desc:'집에서 하는 상체 대표 동작 모음으로 팔·어깨·등을 골고루.',how:'영상 순서대로 팔·어깨·등 동작을 이어서 하기 → 각 동작 12회씩 → 반동 없이 천천히, 자세가 우선!',tags:['상체','홈트']},
+ {id:'shoulder-raise',name:'숄더 레이즈',part:'UPPER',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'12회 × 3세트',anim:'row',vid:'pCgwPOJ6oM0',
+  desc:'어깨 라인을 만드는 기본 레이즈, 정확한 자세로 배워요.',how:'팔을 옆으로 어깨높이까지 천천히 들어올리기 → 팔꿈치를 살짝 굽힌 채 고정 → 어깨가 으쓱 올라가지 않게 주의.',tags:['어깨','근력']},
+ // ── 하체 (LOWER) ──
+ {id:'glute-home',name:'엉덩이 집중 홈트',part:'LOWER',goals:['MUSCLE'],impact:'MID',minLevel:1,reps:'각 12회 × 3세트',anim:'squat',vid:'XfrnE7eVtns',
+  desc:'집에서 하는 둔근 집중 운동 루틴 (조회수 243만!).',how:'영상의 둔근 동작들을 순서대로 → 엉덩이에 힘이 들어가는 걸 느끼며 천천히 → 허리가 아닌 엉덩이로 미는 느낌!',tags:['둔근','홈트']},
+ {id:'lower-warmup',name:'하체 웜업 루틴',part:'LOWER',goals:['STAMINA'],impact:'LOW',minLevel:1,reps:'운동 전 5분',anim:'squat',vid:'Ok6hdKX_Fcg',
+  desc:'운동 전 둔근을 깨우고 하체를 풀어주는 웜업.',how:'본 운동 전에 영상의 활성화 동작을 가볍게 → 둔근이 조여지는 느낌으로 → 몸이 따뜻해질 정도만!',tags:['웜업','저강도']},
+ {id:'hipdip',name:'힙딥 채우기 운동 4가지',part:'LOWER',goals:['MUSCLE'],impact:'MID',minLevel:2,reps:'각 12회 × 3세트',anim:'legraise',vid:'uwTo3YZ9q_8',
+  desc:'옆 엉덩이(중둔근)를 채워주는 힙딥 집중 운동.',how:'옆으로 누워 다리 들기 등 영상 4가지 동작 → 옆 엉덩이에 자극을 느끼며 → 반동 없이 천천히 12회씩.',tags:['둔근','라인']},
+ {id:'squat-form',name:'스쿼트 (정확한 자세)',part:'LOWER',goals:['MUSCLE','FAT_LOSS','STAMINA'],impact:'MID',minLevel:1,reps:'12회 × 3세트',anim:'squat',vid:'rTuWHbqe6A0',
+  desc:'하체 운동의 왕! 무릎이 아프지 않은 올바른 스쿼트 자세.',how:'발을 어깨너비로 벌리고 가슴을 편 채 엉덩이를 뒤로 빼며 앉기 → 무릎이 발끝 방향을 향하게 → 뒤꿈치로 바닥을 밀며 일어서기.',tags:['하체','기본기']},
+ {id:'quad-glute',name:'허벅지·엉덩이 집중 운동',part:'LOWER',goals:['MUSCLE'],impact:'MID',minLevel:2,reps:'각 10회 × 3세트',anim:'squat',vid:'HilhY85XDfw',
+  desc:'같은 동작도 자세에 따라 허벅지/엉덩이 자극이 달라져요.',how:'상체를 세우면 허벅지, 엉덩이를 뒤로 빼면 둔근 집중 → 목표 부위에 맞게 자세를 바꿔가며 → 천천히 수축을 느끼면서.',tags:['하체','둔근']},
+ // ── 코어 (CORE) ──
+ {id:'abs-lowup',name:'윗배 vs 아랫배 복근',part:'CORE',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'각 15회 × 2세트',anim:'legraise',vid:'2omUp4lKTE4',
+  desc:'윗배와 아랫배, 부위별로 다르게 자극하는 복근 운동 (조회수 152만!).',how:'상체를 들면 윗배, 다리를 들면 아랫배 자극 → 목표 부위에 맞는 동작 선택 → 허리가 뜨지 않게 배에 힘!',tags:['복근','부위별']},
+ {id:'ab-10min',name:'10분 복근 운동',part:'CORE',goals:['MUSCLE','FAT_LOSS'],impact:'LOW',minLevel:1,reps:'10분',anim:'legraise',vid:'CFBFd23e_PE',
+  desc:'매트 한 장으로 끝내는 10분 복근 루틴.',how:'영상을 따라 복근 동작을 쉬지 않고 이어가기 → 허리가 바닥에서 뜨지 않게 배에 힘 유지 → 힘들면 10초 쉬고 다시!',tags:['복근','홈트']},
+ {id:'pilates-abs',name:'필라테스 복근·둔근',part:'CORE',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'각 12회 × 2세트',anim:'legraise',vid:'LKI-BunUOCk',
+  desc:'필라테스 동작으로 코어와 엉덩이를 같이 조각해요.',how:'호흡을 뱉으며 배를 조이고 동작 시작 → 필라테스 특유의 느린 템포 유지 → 코어가 풀리지 않게 끝까지.',tags:['필라테스','코어']},
+ {id:'plank-form',name:'플랭크 (정확한 자세)',part:'CORE',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'30초 × 3세트',anim:'plank',vid:'oJg9ZqNEjY4',
+  desc:'코어 전체를 잡아주는 플랭크, 제대로 버티는 법.',how:'팔꿈치를 어깨 바로 아래에 두고 몸을 일직선으로 → 엉덩이가 처지거나 솟지 않게 → 배와 엉덩이에 힘을 준 채 호흡 유지.',tags:['코어','버티기']},
+ // ── 전신 (FULL) ──
+ {id:'lose6',name:'살빠지는 간단 운동 6가지',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'sWUgK8FrEHg',
+  desc:'채널 최고 인기(503만)! 장비 없이 집에서 살 빼는 6동작.',how:'영상의 6가지 동작을 30초씩 이어서 → 한 바퀴 돌고 1분 휴식 → 총 2바퀴, 호흡은 일정하게!',tags:['다이어트','인기']},
+ {id:'dumbbell4',name:'덤벨 전신 운동 4가지',part:'FULL',goals:['MUSCLE'],impact:'MID',minLevel:2,reps:'각 10회 × 3세트',anim:'row',vid:'o_AhdsD03qo',
+  desc:'덤벨 하나로 전신 근력을 키우는 4가지 동작.',how:'가벼운 덤벨(또는 물병)로 시작 → 영상의 4동작을 10회씩 → 반동 없이 근육의 힘으로만!',tags:['덤벨','근력']},
+ {id:'strength5',name:'전신 근력 운동 TOP5',part:'FULL',goals:['MUSCLE','STAMINA'],impact:'MID',minLevel:1,reps:'각 10회 × 3세트',anim:'squat',vid:'tD12Fk0qqEQ',
+  desc:'근육을 만드는 집에서 하는 전신 근력 운동 베스트 5.',how:'영상의 5가지 동작을 순서대로 10회씩 → 세트 사이 30초 휴식 → 마지막 세트까지 자세 무너지지 않게.',tags:['근력','홈트']},
+ {id:'hiit-nojump',name:'무점프 HIIT',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'15분',anim:'jack',vid:'ngBFJjWY2pk',
+  desc:'점프 없이 층간소음 걱정 없이! 무릎에 부담 적은 HIIT.',how:'영상 동작을 30초 운동 + 10초 휴식으로 반복 → 점프 대신 스텝으로 강도 유지 → 심박수가 오르면 성공!',tags:['저충격','HIIT']},
+ {id:'hiit-30min',name:'30분 전신 HIIT',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'HIGH',minLevel:3,reps:'30분',anim:'jack',vid:'Ix4J9sdPoEI',
+  desc:'제대로 땀 빼는 30분 고강도 전신 인터벌.',how:'영상 타이머에 맞춰 운동/휴식 반복 → 힘들면 저강도 옵션 동작으로 → 물 옆에 두고 시작!',tags:['고강도','유산소']},
+ {id:'fullbody5',name:'맨몸 전신 운동 5가지',part:'FULL',goals:['MUSCLE','STAMINA'],impact:'MID',minLevel:1,reps:'각 12회 × 2세트',anim:'jack',vid:'r18RA2ZcrZ0',
+  desc:'장비 없이 전신을 골고루 자극하는 5가지 동작.',how:'영상의 5동작을 12회씩 순서대로 → 2바퀴 반복 → 동작 사이 휴식은 짧게!',tags:['맨몸','홈트']},
+ {id:'lose5-fast',name:'빠르게 살빼는 운동 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'P6PE3BXaKhU',
+  desc:'짧고 굵게! 체중 감량에 효과적인 5동작.',how:'각 동작 30초씩 쉬지 않고 이어서 → 한 바퀴 후 1분 휴식 → 2바퀴 완주!',tags:['다이어트','홈트']},
+ {id:'hiit-20min',name:'20분 다이어트 HIIT',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'HIGH',minLevel:3,reps:'20분',anim:'jack',vid:'CH5KnZK11XE',
+  desc:'20분 동안 몰아치는 체중 감량 인터벌 트레이닝.',how:'영상 구성대로 운동 40초 + 휴식 20초 → 페이스 조절하며 20분 완주 → 끝나고 꼭 스트레칭!',tags:['고강도','다이어트']},
+ {id:'fatburn5',name:'지방 태우는 운동 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'CKVFoqngN1g',
+  desc:'빠른 지방 연소를 위한 심플한 5가지 동작.',how:'영상의 5동작을 30초씩 → 심박수를 유지하며 쉼 없이 → 2바퀴 돌면 완료!',tags:['다이어트','홈트']},
+ {id:'fatburn5-b',name:'지방 연소 홈트 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'tDbjQklhOFI',
+  desc:'집에서 장비 없이 지방을 태우는 또 다른 5동작 루틴.',how:'각 동작 30초, 동작 사이 10초 휴식 → 자세가 무너지면 속도를 늦추기 → 총 2바퀴.',tags:['다이어트','맨몸']},
+ {id:'cardio5-alt',name:'러닝 대신 카디오 5가지',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'MID',minLevel:1,reps:'각 40초 × 2바퀴',anim:'walk',vid:'TATT44a9zF4',
+  desc:'달리기 싫은 날, 실내에서 하는 유산소 대체 운동.',how:'영상의 5가지 카디오 동작을 40초씩 → 러닝만큼 심박수 올리기 → 무릎이 불편하면 낮은 강도로.',tags:['유산소','홈트']},
+ {id:'dumbbell3',name:'덤벨 전신 운동 TOP3',part:'FULL',goals:['MUSCLE'],impact:'MID',minLevel:2,reps:'각 10회 × 3세트',anim:'row',vid:'C9hh9TRESao',
+  desc:'덤벨로 하는 가장 효율적인 전신 3동작.',how:'전신을 쓰는 복합 동작 3가지 → 가벼운 무게로 자세부터 → 10회 × 3세트, 코어에 힘 유지.',tags:['덤벨','근력']},
+ {id:'cooldown',name:'운동 후 쿨다운 스트레칭',part:'FULL',goals:['STAMINA'],impact:'LOW',minLevel:1,reps:'운동 후 5분',anim:'back',vid:'sHJDiR2fruA',
+  desc:'운동 후 근육을 풀어주는 데일리 쿨다운 루틴.',how:'운동이 끝나면 영상의 스트레칭을 순서대로 → 반동 없이 지그시 15초씩 → 호흡을 길게 내쉬며 마무리.',tags:['이완','회복']},
+ {id:'lose5-stand',name:'서서 하는 다이어트 운동 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'LOW',minLevel:1,reps:'각 30초 × 2바퀴',anim:'walk',vid:'TMEdtp6qHsY',
+  desc:'바닥에 눕지 않고 전부 서서 하는 감량 루틴.',how:'전부 스탠딩 동작이라 좁은 공간 OK → 30초씩 이어서 → 무릎 부담 없이 꾸준히!',tags:['스탠딩','저충격']},
+ {id:'lowimpact',name:'무점프 저강도 운동',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'10분',anim:'walk',vid:'6p_7PzWEaQo',
+  desc:'점프 없이도 충분히 효과적인 저충격 전신 운동.',how:'영상 동작을 천천히 정확하게 → 점프 없이 근육 자극에 집중 → 관절 부담 없이 10분!',tags:['저충격','초보']},
+ {id:'hiit-weight5',name:'체중감량 HIIT BEST5',part:'FULL',goals:['FAT_LOSS'],impact:'HIGH',minLevel:3,reps:'각 40초 × 2바퀴',anim:'jack',vid:'A4EZvo6pPbg',
+  desc:'감량에 가장 효과적인 고강도 5동작.',how:'각 동작 40초 + 휴식 20초 → 최대한 빠르게, 하지만 자세 우선 → 2바퀴 완주!',tags:['고강도','다이어트']},
+ {id:'partner',name:'친구랑 2인 운동',part:'FULL',goals:['STAMINA'],impact:'LOW',minLevel:1,reps:'친구랑 10분',anim:'jack',vid:'wQNt2VEmyw0',
+  desc:'쉬는 시간에 친구랑 같이! 재밌는 짝꿍 운동.',how:'친구와 마주 보고 영상 동작 따라하기 → 서로 자세 봐주기 → 웃으면서 해도 운동은 진심으로!',tags:['2인','재미']},
+ {id:'fatburn5-c',name:'체지방 태우기 운동 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'Ly_EISu9GBw',
+  desc:'장비 없이 체지방을 공략하는 효과 만점 5동작.',how:'각 동작 30초씩 순서대로 → 동작 전환은 빠르게 → 마지막 바퀴는 스퍼트!',tags:['다이어트','맨몸']},
+ {id:'hiit-intense',name:'고강도 지방연소 HIIT',part:'FULL',goals:['FAT_LOSS'],impact:'HIGH',minLevel:3,reps:'15분',anim:'jack',vid:'B-xGE665A8s',
+  desc:'짧은 시간 최대 효과, 인텐스 지방 연소 인터벌.',how:'전력으로 40초 + 휴식 20초 반복 → 심박수를 끝까지 유지 → 초보자는 무점프 HIIT부터!',tags:['고강도','상급']},
+ {id:'pilates-hiit',name:'필라테스 전신 HIIT',part:'FULL',goals:['MUSCLE','FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 45초 × 2바퀴',anim:'plank',vid:'Sn3mGSC5pyU',
+  desc:'필라테스와 HIIT를 합친 전신 5동작.',how:'느린 필라테스 템포로 코어에 힘을 유지한 채 → 각 동작 45초 → 호흡과 함께 부드럽게.',tags:['필라테스','전신']},
+ {id:'cardio5-hard',name:'고강도 카디오 5가지',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'HIGH',minLevel:3,reps:'각 40초 × 2바퀴',anim:'jack',vid:'7Q5YbZ-j4jY',
+  desc:'칼로리를 확 태우는 인텐스 카디오 5동작.',how:'각 동작 40초 전력 → 20초 휴식 → 2바퀴 후 반드시 쿨다운 스트레칭!',tags:['고강도','유산소']},
+ {id:'pilates-stand',name:'서서 하는 필라테스 HIIT',part:'FULL',goals:['MUSCLE','FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 45초 × 2바퀴',anim:'walk',vid:'O-4e1MwATCw',
+  desc:'전부 서서 하는 필라테스 기반 전신 운동 TOP5.',how:'매트 없이 선 채로 → 코어를 조인 상태로 각 동작 45초 → 균형이 흔들리면 의자를 잡고.',tags:['필라테스','스탠딩']},
+ {id:'lose5-best',name:'서서 하는 살빼기 운동 BEST5',part:'FULL',goals:['FAT_LOSS'],impact:'LOW',minLevel:1,reps:'각 30초 × 2바퀴',anim:'walk',vid:'oUiT2dXQrMM',
+  desc:'눕지 않고 서서만 하는 베스트 감량 동작 5가지.',how:'스탠딩 동작 5가지를 30초씩 → 배에 힘을 유지한 채 → 아침저녁 2바퀴씩!',tags:['스탠딩','저충격']},
+ {id:'lose5-home',name:'집에서 살빼는 운동 5가지',part:'FULL',goals:['FAT_LOSS'],impact:'MID',minLevel:1,reps:'각 30초 × 2바퀴',anim:'jack',vid:'5wvzSkuSmqQ',
+  desc:'좁은 방에서도 OK! 빠른 감량 5동작 루틴.',how:'각 동작 30초씩 쉼 없이 → 한 바퀴 후 1분 휴식 → 꾸준히 매일 2바퀴.',tags:['다이어트','홈트']},
+ {id:'form-fix',name:'자세 교정 폼 체크',part:'FULL',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'운동 전 3분',anim:'plank',vid:'VRKFXG7vdjk',
+  desc:'흔한 잘못된 자세를 바로잡는 폼 체크 가이드.',how:'영상의 잘못된 자세 vs 올바른 자세 비교 → 거울 앞에서 내 자세 확인 → 본 운동 전에 한 번씩 점검!',tags:['자세교정','기본기']},
+ {id:'modify',name:'내 수준에 맞춘 변형 동작',part:'FULL',goals:['STAMINA'],impact:'LOW',minLevel:1,reps:'참고용 3분',anim:'plank',vid:'_SPc_EqPbdE',
+  desc:'같은 운동도 상급→초급으로! 난이도 조절하는 법.',how:'어려운 동작이 나오면 영상의 초급 변형으로 바꾸기 → 자세가 완벽해지면 한 단계 위로 → 무리하지 않는 게 실력!',tags:['초보','변형']},
+ {id:'cardio4-easy',name:'쉬운 카디오 4가지',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'각 40초 × 2바퀴',anim:'walk',vid:'ugPWuFLzo94',
+  desc:'운동 처음이라면 여기서 시작! 쉬운 유산소 4동작.',how:'각 동작 40초씩 편한 속도로 → 숨이 약간 찰 정도 유지 → 익숙해지면 속도 업!',tags:['초보','유산소']},
+ {id:'home-cardio',name:'홈 카디오 유산소',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'HIGH',minLevel:3,reps:'15분',anim:'jack',vid:'q8FozHTgWs8',
+  desc:'러닝머신 없이 집에서 심박수를 확 올리는 유산소 루틴.',how:'영상 동작을 30초씩 이어서 하기 → 무릎에 부담되면 점프 없이 스텝으로 바꾸기 → 숨이 차도 자세는 무너지지 않게!',tags:['전신','고강도']},
+ {id:'home-fullbody',name:'집에서 전신 운동',part:'FULL',goals:['MUSCLE','FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'각 12회 × 2세트',anim:'jack',vid:'iOS0zllL_iM',
+  desc:'장비 없이 집에서 전신을 골고루 자극하는 루틴.',how:'상체→하체→코어 순서로 영상 동작을 따라하기 → 각 동작 12회 → 쉬는 시간은 짧게, 자세는 정확하게.',tags:['전신','맨몸']},
 ];
 
 /* stretching routines (F4) */
+/* cat: 부위 그룹 · core: 10분 풀세트 루틴 포함 여부 · 전 영상 자생한방병원 '숏트레칭' 시리즈 */
 const STRETCH=[
- {id:'neck',name:'거북목 교정',part:'목/어깨',time:'3분',anim:'neck',emo:'🙆',vid:'bYIqVivG9YA',
-  desc:'하루 종일 숙인 목을 시원하게 풀어요.',how:'턱을 뒤로 당기기 → 목을 좌우로 천천히 늘이기 → 어깨 으쓱 10회.',tags:['거북목','좌식']},
- {id:'back',name:'굽은 등 펴기',part:'등/가슴',time:'3분',anim:'back',emo:'🧍',vid:'I5-148U9SuA',
-  desc:'의자 등받이를 활용해 굽은 등을 펴줍니다.',how:'등받이에 기대 가슴을 열고 흉추 펴기 → 날개뼈 모으기 10회.',tags:['자세교정','좌식']},
- {id:'wrist',name:'손목·팔 이완',part:'손목/팔',time:'2분',anim:'wrist',emo:'🤚',vid:'hbBO5c44diY',
-  desc:'필기·타이핑으로 지친 손목을 풀어요.',how:'손목 털기 → 손목 돌리기 → 손가락 쭉 펴기.',tags:['손목','좌식']},
- {id:'legcirc',name:'하체 순환',part:'다리',time:'2분',anim:'calf',emo:'🦵',vid:'er5Oxoi-X1g',
-  desc:'앉아서 굳은 다리 혈액순환을 도와요.',how:'앉아서 무릎 펴기 → 발목 펌프 → 종아리 늘이기.',tags:['하체','좌식']},
+ // ── 목 ──
+ {id:'neck',cat:'목',core:true,name:'거북목 하늘보기',part:'목/어깨',time:'3분',anim:'neck',emo:'🙆',vid:'bYIqVivG9YA',
+  desc:'거북목·일자목에 좋은 하늘보기 체조로 목 앞쪽을 시원하게.',how:'허리를 펴고 앉아 가슴을 활짝 열기 → 고개를 천천히 들어 하늘을 보며 5초 유지 → 턱을 당기며 제자리로 돌아오기. 반복!',tags:['거북목','좌식']},
+ {id:'flatneck',cat:'목',name:'일자목 30초 타파',part:'목',time:'2분',anim:'neck',emo:'🦒',vid:'Kj8S9fI1nG8',
+  desc:'30초 만에 일자목을 시원하게 풀어주는 초간단 스트레칭.',how:'턱을 뒤로 지그시 당겨 이중턱 만들기 → 그대로 5초 유지 후 천천히 풀기 → 30초 동안 반복.',tags:['일자목','좌식']},
+ {id:'towel',cat:'목',name:'수건 누르기',part:'목',time:'2분',anim:'neck',emo:'🧣',vid:'Nhydlzxfm9c',
+  desc:'수건 하나로 일자목증후군을 예방해요.',how:'수건을 말아 목 뒤에 대기 → 머리로 수건을 지그시 뒤로 누르며 5초 버티기 → 힘을 빼고 다시 반복.',tags:['일자목','좌식']},
+ {id:'lizard',cat:'목',name:'도마뱀 스트레칭',part:'목',time:'2분',anim:'neck',emo:'🦎',vid:'3pRqRgEo4F4',
+  desc:'도마뱀처럼 목을 움직여 뭉친 목근육을 확 풀어요.',how:'고개를 앞으로 천천히 내밀었다가 뒤로 당기기 → 도마뱀처럼 부드럽게 반복 → 목 앞뒤가 번갈아 늘어나는 느낌으로 10회.',tags:['목이완','좌식']},
+ {id:'headpush',cat:'목',name:'앉아서 머리 밀기',part:'목',time:'2분',anim:'neck',emo:'🙇',vid:'38-xd5TS5lA',
+  desc:'목관절 주변 근육을 안정적으로 강화하는 버티기 체조.',how:'바르게 앉아 양손을 뒤통수에 대기 → 머리와 손이 서로 밀며 5초 버티기 → 이마·옆머리 방향도 똑같이.',tags:['목강화','좌식']},
+ {id:'nodnod',cat:'목',name:'끄덕끄덕 졸음 깨기',part:'목',time:'2분',anim:'neck',emo:'😴',vid:'QI8IJSzHrcI',
+  desc:'수업 중 졸음이 몰려올 때! 끄덕끄덕 목을 깨우는 체조.',how:'허리를 펴고 앉아 고개를 위아래로 크게 끄덕이기 → 반동 없이 천천히 → 목 뒤가 늘어나며 잠이 확 깨요.',tags:['졸음타파','좌식']},
+ {id:'brainwake',cat:'목',name:'머리 밀기 (집중력 UP)',part:'목/머리',time:'2분',anim:'neck',emo:'🧠',vid:'UOeRgRg8jYg',
+  desc:'잠자는 뇌를 깨워주는 앉아서 머리 밀기 스트레칭.',how:'앉아서 손바닥을 이마에 대기 → 머리는 앞으로, 손은 뒤로 서로 밀며 5초 버티기 → 옆·뒤 방향도 번갈아.',tags:['집중력','좌식']},
+ // ── 어깨 ──
+ {id:'shoulderup',cat:'어깨',name:'어깨 쭉쭉 늘리기',part:'어깨',time:'2분',anim:'back',emo:'🙌',vid:'FioDQiHcjuU',
+  desc:'어깨 통증 완화에 좋은 쭉쭉 늘리기 체조.',how:'양손을 깍지 껴 손바닥을 하늘로 밀어올리기 → 팔을 귀 옆에 붙이고 위로 쭉쭉 → 좌우로 살짝 기울여 옆까지 늘이기.',tags:['어깨','좌식']},
+ {id:'silentclap',cat:'어깨',name:'무음 박수치기',part:'어깨',time:'2분',anim:'row',emo:'👏',vid:'ks4s8nzvNwY',
+  desc:'오십견 예방! 흥이 돋는 무음 박수치기 체조.',how:'팔을 어깨높이로 들고 박수치듯 앞으로 모으기(소리 없이 살짝) → 팔꿈치를 뒤로 활짝 벌려 날개뼈 모으기 → 리듬 있게 반복.',tags:['어깨','좌식']},
+ {id:'titanic',cat:'어깨',name:'타이타닉 체조',part:'어깨/가슴',time:'2분',anim:'back',emo:'🚢',vid:'YszVHeFuSHM',
+  desc:'어깨 통증에 좋은 타이타닉 자세 체조.',how:'가슴을 활짝 펴고 양팔을 뒤로 비스듬히 벌리기(타이타닉 자세) → 손바닥을 바깥으로 젖혀 어깨 앞쪽 늘이기 → 10초 유지 후 반복.',tags:['어깨','자세교정']},
+ {id:'armraise',cat:'어깨',name:'팔 들어올리기',part:'어깨',time:'2분',anim:'row',emo:'🙋',vid:'YoW5P9Y4Cv8',
+  desc:'오십견을 예방하는 팔 들어올리기 체조.',how:'팔을 몸 옆에서 천천히 옆으로·위로 들어올리기 → 귀 옆까지 올렸다가 천천히 내리기 → 어깨 가동범위를 조금씩 넓히기.',tags:['어깨','가동성']},
+ {id:'nono',cat:'어깨',name:'안돼요 스트레칭',part:'어깨',time:'2분',anim:'row',emo:'🙅',vid:'iUnXEILFcxg',
+  desc:'어깨가 뭉치고 아플 때, 회전근을 풀어주는 안돼요 손짓 체조.',how:'팔꿈치를 90도로 굽혀 몸에 붙이기 → 손을 바깥으로 벌렸다 모으기(안돼요 손짓) → 어깨 회전근을 부드럽게 풀기.',tags:['어깨','좌식']},
+ {id:'armtwist',cat:'어깨',name:'팔 비틀기',part:'팔/어깨',time:'2분',anim:'wrist',emo:'🌀',vid:'kQxJ7ClU5PA',
+  desc:'팔과 어깨가 뻐근할 때 시원하게 비틀어 풀어요.',how:'팔을 앞으로 뻗고 손바닥을 안팎으로 천천히 비틀기 → 팔꿈치까지 돌아가게 크게 → 뻐근함이 풀릴 때까지 반복.',tags:['팔','좌식']},
+ {id:'knee-pushup',cat:'어깨',name:'가슴 펴기 스트레칭',part:'가슴/어깨',time:'2분',anim:'pushup',emo:'🤗',vid:'XIZdCY0SKFM',
+  desc:'움츠린 가슴을 활짝 열어 어깨 통증을 풀어주는 스트레칭.',how:'양손을 등 뒤에서 깍지 끼기 → 가슴을 활짝 열며 팔을 뒤로·위로 천천히 들어올리기 → 가슴과 어깨 앞쪽이 늘어나는 느낌으로 15초 유지.',tags:['어깨','자세교정']},
+ {id:'band-row',cat:'어깨',name:'등·몸통 돌리기',part:'등/몸통',time:'2분',anim:'row',emo:'🔄',vid:'6XtVQ0s-xMw',
+  desc:'뻐근하게 굳은 등과 옆구리를 시원하게 돌려서 풀어요.',how:'허리를 곧게 세우고 앉아 팔을 가슴 앞에 모으기 → 상체를 한쪽으로 천천히 끝까지 돌려 3초 유지 → 반대쪽도 번갈아 반복.',tags:['등','자세교정']},
+ // ── 허리·골반 ──
+ {id:'back',cat:'허리·골반',core:true,name:'허리 아빠다리 체조',part:'허리/엉덩이',time:'3분',anim:'back',emo:'🧍',vid:'I5-148U9SuA',
+  desc:'앉아서 하는 아빠다리 자세로 허리 통증을 예방해요.',how:'의자에 앉아 한쪽 발목을 반대쪽 무릎 위에 올리기(아빠다리) → 허리를 편 채 상체를 천천히 앞으로 숙여 10초 유지 → 다리를 바꿔 반복.',tags:['허리','좌식']},
+ {id:'twistback',cat:'허리·골반',name:'꽈배기 스트레칭',part:'허리',time:'2분',anim:'back',emo:'🥨',vid:'q44FIPU2qVo',
+  desc:'허리 통증에 좋은 몸통 비틀기, 꽈배기 스트레칭.',how:'바르게 앉아 다리를 꼬기 → 상체를 반대 방향으로 꽈배기처럼 비틀어 10초 유지 → 반대쪽도 동일하게.',tags:['허리','좌식']},
+ {id:'sidebody',cat:'허리·골반',name:'옆구리 스트레칭',part:'허리/옆구리',time:'2분',anim:'back',emo:'🌙',vid:'UtYHl0RnOdc',
+  desc:'허리 건강에 필수! 굳은 옆구리를 길게 늘여요.',how:'양발을 어깨너비로 서서 한 팔을 머리 위로 → 반대쪽으로 천천히 기울여 옆구리 늘이기 → 좌우 번갈아 10초씩.',tags:['허리','유연성']},
+ {id:'pelvisleg',cat:'허리·골반',name:'골반 학다리 체조',part:'골반',time:'2분',anim:'calf',emo:'🦩',vid:'tMJJ5snXccY',
+  desc:'틀어진 골반 교정에 좋은 학다리 균형 체조.',how:'한 손으로 벽이나 의자를 잡고 서기 → 한쪽 다리를 학처럼 들어 골반 높이를 맞추기 → 좌우 번갈아 균형 잡기.',tags:['골반교정','균형']},
+ {id:'horseride',cat:'허리·골반',name:'한발 기마 스트레칭',part:'허리/골반',time:'2분',anim:'squat',emo:'🐎',vid:'z4KQupG2Cpo',
+  desc:'허리와 골반이 아플 때 좋은 한발 기마 자세.',how:'한 발을 앞으로 내딛고 기마자세처럼 무릎 구부리기 → 뒷다리 골반 앞쪽이 늘어나게 지그시 → 좌우 교대.',tags:['골반','하체']},
+ {id:'frog',cat:'허리·골반',name:'개구리 스트레칭',part:'고관절',time:'2분',anim:'squat',emo:'🐸',vid:'ydjFoIuJImI',
+  desc:'고관절 건강을 위한 개구리 자세 스트레칭.',how:'무릎을 꿇고 다리를 개구리처럼 양옆으로 벌리기 → 팔꿈치를 바닥에 대고 골반을 뒤로 지그시 → 고관절 안쪽이 늘어나는 느낌.',tags:['고관절','유연성']},
+ {id:'walk',cat:'허리·골반',name:'허리 계단걷기',part:'허리/하체',time:'10분',anim:'walk',emo:'🚶',vid:'z0gmkEFUdDA',
+  desc:'계단을 이용해 허리와 하체를 함께 깨우는 가벼운 체조.',how:'허리를 곧게 편 채 계단을 한 칸씩 천천히 오르기 → 발바닥 전체로 지그시 딛고 무릎·허리에 반동 주지 않기 → 내려올 땐 더 천천히!',tags:['허리','유산소']},
+ {id:'plank',cat:'허리·골반',name:'허리 브릿지',part:'허리/코어',time:'3분',anim:'plank',emo:'🌉',vid:'qrXF3cp0yls',
+  desc:'허리 디스크 예방! 허리·엉덩이·코어를 잡아주는 대표 체조.',how:'천장을 보고 누워 무릎 세우기 → 엉덩이와 허벅지 뒤쪽에 힘을 주며 골반을 들어올리기 → 무릎과 발이 바깥으로 벌어지지 않게 주의하며 3초 버티고 내리기.',tags:['허리','코어']},
+ {id:'legraise',cat:'허리·골반',name:'둔근 강화 스트레칭',part:'엉덩이',time:'2분',anim:'legraise',emo:'🛏️',vid:'JtfU70aO2f0',
+  desc:'아침에 눈 뜨자마자 침대에서 엉덩이 근육을 깨워요.',how:'침대에 누워 무릎 세우기 → 엉덩이에 힘을 주며 골반을 천천히 들었다 내리기 → 반동 없이 호흡과 함께 반복.',tags:['둔근','침대에서']},
+ // ── 손목·팔 ──
+ {id:'wrist',cat:'손목·팔',core:true,name:'손목 돌리기',part:'손목/팔',time:'2분',anim:'wrist',emo:'🤚',vid:'hbBO5c44diY',
+  desc:'손목터널증후군을 예방하는 손목 돌리기 체조.',how:'양손을 깍지 끼고 손목을 크게 원을 그리며 돌리기 → 반대 방향으로도 똑같이 → 마지막엔 손목을 가볍게 털어 이완.',tags:['손목','좌식']},
+ {id:'jamjam',cat:'손목·팔',name:'누워서 잼잼',part:'손목/손가락',time:'2분',anim:'wrist',emo:'✊',vid:'kK82zGHR0y4',
+  desc:'손목 관절염을 예방하는 누워서 잼잼 체조.',how:'누워서 팔을 천장으로 쭉 뻗기 → 손을 쥐었다 폈다(잼잼) 반복 → 손목과 손가락 관절이 부드러워져요.',tags:['손목','휴식']},
+ // ── 다리·무릎 ──
+ {id:'legcirc',cat:'다리·무릎',core:true,name:'발목 까딱 스트레칭',part:'다리',time:'2분',anim:'calf',emo:'🦵',vid:'er5Oxoi-X1g',
+  desc:'다리가 무겁고 잠이 안 올 때, 발목을 까딱여 순환을 도와요.',how:'다리를 쭉 뻗고 앉거나 눕기 → 발목을 몸 쪽으로 당겼다가(까딱) 멀리 쭉 펴기를 리듬 있게 반복 → 종아리가 시원해질 때까지.',tags:['하체','좌식']},
+ {id:'kneestair',cat:'다리·무릎',name:'무릎 계단 스트레칭',part:'무릎/종아리',time:'2분',anim:'calf',emo:'🪜',vid:'3ieBA6nUe2w',
+  desc:'무릎 통증에 좋은 계단 이용 스트레칭.',how:'계단 끝에 발 앞부분만 딛고 서기 → 뒤꿈치를 천천히 내려 종아리와 무릎 뒤쪽 늘이기 → 난간을 잡고 안전하게!',tags:['무릎','하체']},
+ {id:'chair-squat',cat:'다리·무릎',name:'정확한 스쿼트 체조',part:'하체',time:'5분',anim:'squat',emo:'🏋️',vid:'FC-RnanqQg8',
+  desc:'정확한 자세로 하체와 코어를 한 번에 단련하는 기본 스쿼트.',how:'발을 어깨너비로 벌리고 팔은 앞으로 나란히(손바닥은 바닥을 향하게, 팔꿈치는 쭉) → 엉덩이를 뒤로 빼며 무릎을 60도 정도 구부렸다 천천히 일어서기.',tags:['하체','코어']},
+ {id:'calf',cat:'다리·무릎',name:'발목 펴기 체조',part:'발목',time:'2분',anim:'calf',emo:'🦶',vid:'avAzEHwz0VY',
+  desc:'굳은 발목의 유연성을 늘려 부상을 예방해요.',how:'다리를 앞으로 뻗고 앉기 → 발끝을 몸 쪽으로 당겼다가 반대로 쭉 펴기 → 발목이 부드러워질 때까지 천천히 반복.',tags:['발목','유연성']},
+ // ── 코어·전신 ──
+ {id:'swim',cat:'코어·전신',name:'발장구 체조',part:'복부/다리',time:'2분',anim:'swim',emo:'🏊',vid:'D5HPXIy-NFY',
+  desc:'누워서 다리를 힘차게! 다리 근력과 복근을 함께 키우는 저충격 체조예요.',how:'바닥에 등을 대고 누워 손은 엉덩이 옆에 두기 → 두 다리를 살짝 띄우고 위아래로 번갈아 차기 → 허리가 뜨지 않게 배에 힘 주고 30초!',tags:['복근','저충격']},
+ {id:'jumpingjack',cat:'코어·전신',name:'전신 누르기 체조',part:'전신',time:'5분',anim:'jack',emo:'🫸',vid:'AC9mHw71xEM',
+  desc:'아무것도 하기 싫은 날, 몸 구석구석을 지그시 눌러 깨우는 전신 체조.',how:'편하게 앉거나 서서 팔·어깨·허벅지를 손바닥으로 지그시 눌러주기 → 뭉친 곳은 3초씩 꾹 → 전신을 순서대로 한 바퀴 돌기.',tags:['전신','이완']},
 ];
+const STRETCH_CATS=[['목','🦒'],['어깨','🙌'],['허리·골반','🧍'],['손목·팔','🤚'],['다리·무릎','🦵'],['코어·전신','🤸']];
 
 /* =================== STATE =================== */
 const KEY='movefit_v1';
@@ -832,18 +968,17 @@ function recommend(){
  let goal=S.goal;
  if(S.bmiClass==='UNDER'&&goal==='FAT_LOSS') goal='STAMINA';
  const parts=(S.parts&&S.parts.length)?S.parts:['FULL'];
- let pool=EX.slice();
+ let pool=EX.filter(e=>parts.includes(e.part)); // 선택한 집중 부위 카테고리의 영상만 노출
  if(['OVER','OBESE'].includes(S.bmiClass)) pool=pool.filter(e=>e.impact!=='HIGH');
  const lvl=levelInfo(S.exp).lvl;
  const score=e=>{
    let s=0;
    if(e.goals.includes(goal)) s+=5;      // 목표 일치
-   if(parts.includes(e.part)) s+=3;      // 집중 부위 일치
-   if(e.part==='FULL') s+=1;             // 전신은 두루 적합
    if(e.impact==='LOW') s+=0.5;          // 저충격 가산
    if(e.minLevel>lvl) s-=100;            // 레벨 잠금 운동은 항상 목록 맨 뒤로
    return s;
  };
+ // 동점이면 카탈로그 순서(=카테고리 내 조회수 순) 유지
  return pool.map(e=>({e,s:score(e)})).sort((a,b)=>b.s-a.s).map(x=>x.e);
 }
 
@@ -931,8 +1066,8 @@ function renderHome(){
    const key=localDateKey(d);const on=S.checkDays.includes(key);const isToday=i===0;
    html+=`<div class="day"><div class="dot ${on?'on':''} ${isToday?'today':''}">${on?'✓':''}</div>${days[d.getDay()]}</div>`;}
  strip.innerHTML=html;
- // recommendations (기본 3개, 더보기로 최대 9개, 적합도 순)
- const ranked=recommend().slice(0,9);
+ // recommendations (기본 3개, 더보기로 선택 부위 전체, 적합도 순)
+ const ranked=recommend();
  const show=recExpanded?ranked:ranked.slice(0,3);
  document.getElementById('rec-tag').style.display=['OVER','OBESE'].includes(S.bmiClass)?'inline-block':'none';
  document.getElementById('rec-list').innerHTML=show.map(e=>recCard(e)).join('')||
@@ -966,19 +1101,26 @@ function recCard(e){
 }
 
 /* =================== STRETCH =================== */
-function renderStretch(){
- document.getElementById('stretch-list').innerHTML=STRETCH.map(s=>{
-  const rem=itemRemain(s.id), done=rem>0;
-  return `<div class="card rec ${done?'completed':''}" data-id="${s.id}" onclick="openPlayer('${s.id}','st')">
-    <div class="thumb">${thumbHtml(s,'ts-')}</div>
-    <div class="meta"><h3>${s.emo} ${s.name}</h3><div class="sub">${s.part} · ${s.time}</div>
-    <div>${done?`<span class="tag done">✅ 완료 · <span class="cd-time">${fmtRemain(rem)} 후</span></span>`:''}${s.tags.map(t=>`<span class="tag safe">${t}</span>`).join('')}</div></div>
-    <div class="go">${done?'✓':'▶'}</div></div>`;}).join('');
+function stretchCard(s){
+ const rem=itemRemain(s.id), done=rem>0;
+ return `<div class="card rec ${done?'completed':''}" data-id="${s.id}" onclick="openPlayer('${s.id}','st')">
+   <div class="thumb">${thumbHtml(s,'ts-')}</div>
+   <div class="meta"><h3>${s.emo} ${s.name}</h3><div class="sub">${s.part} · ${s.time}</div>
+   <div>${done?`<span class="tag done">✅ 완료 · <span class="cd-time">${fmtRemain(rem)} 후</span></span>`:''}${s.tags.map(t=>`<span class="tag safe">${t}</span>`).join('')}</div></div>
+   <div class="go">${done?'✓':'▶'}</div></div>`;
 }
-/* 전체 루틴: 쿨다운 안 걸린 스트레칭을 큐로 순차 진행 */
+function renderStretch(){ // 부위 카테고리별 그룹으로 표시
+ document.getElementById('stretch-list').innerHTML=STRETCH_CATS.map(([cat,emo])=>{
+  const items=STRETCH.filter(s=>s.cat===cat);
+  if(!items.length)return'';
+  return `<div class="section-title" style="font-size:16px;margin:14px 4px 8px;">${emo} ${cat} <span class="tag">${items.length}개</span></div>`
+    +items.map(stretchCard).join('');
+ }).join('');
+}
+/* 전체 루틴: 핵심 4종(core)을 큐로 순차 진행 (쿨다운 중인 건 건너뜀) */
 let routine=null; // {ids:[], idx}
 function startRoutine(){
- const ids=STRETCH.filter(s=>itemRemain(s.id)<=0).map(s=>s.id);
+ const ids=STRETCH.filter(s=>s.core&&itemRemain(s.id)<=0).map(s=>s.id);
  if(!ids.length){toast('오늘 루틴은 모두 완료했어요! 쿨다운 후에 다시 💫');return;}
  routine={ids,idx:0};
  openPlayer(ids[0],'st',true);

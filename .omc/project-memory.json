@@ -29,6 +29,13 @@
   },
   "customNotes": [],
   "directoryMap": {},
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "index.html",
+      "accessCount": 19,
+      "lastAccessed": 1783945168476,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
