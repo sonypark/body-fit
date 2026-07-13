@@ -228,6 +228,19 @@ h1,h2,h3{margin:0;font-weight:400;}
   box-shadow:0 -12px 30px rgba(90,120,200,.25);animation:sheetUp .35s cubic-bezier(.2,.9,.3,1.2);max-height:88%;display:flex;flex-direction:column;}
 @keyframes sheetUp{from{transform:translateY(100%);}to{transform:none;}}
 .sheet-grip{width:44px;height:5px;border-radius:999px;background:#e0e6f5;margin:0 auto 12px;}
+/* 출석 달력 */
+.cal-nav{background:#f3f7ff;border:none;font-family:inherit;font-size:22px;color:var(--ink-soft);width:42px;height:42px;border-radius:12px;cursor:pointer;}
+.cal-nav:active{transform:scale(.94);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+.cal-dow div{text-align:center;font-size:11px;color:var(--ink-soft);padding:2px 0;}
+.cal-cell{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:13px;color:var(--ink);background:#f5f8ff;}
+.cal-cell.empty{background:transparent;}
+.cal-cell.on{background:linear-gradient(135deg,var(--coral),var(--yellow));color:#fff;box-shadow:0 4px 10px rgba(255,140,120,.4);}
+.cal-cell.today{outline:3px solid var(--mint);}
+.cal-cell.future{opacity:.35;}
+.cal-dot{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin-right:4px;}
+.cal-dot.on{background:linear-gradient(135deg,var(--coral),var(--yellow));}
+.cal-dot.today{background:#fff;outline:2px solid var(--mint);}
 .sheet-scroll{overflow-y:auto;scrollbar-width:none;}
 .sheet-scroll::-webkit-scrollbar{display:none;}
 #ed-goal .opt{padding:12px;}#ed-goal .emo{width:40px;height:40px;font-size:24px;}
@@ -283,9 +296,9 @@ h1,h2,h3{margin:0;font-weight:400;}
         <h1 class="big" style="margin-bottom:4px;">함께할 파트너를 골라줘! 🤝</h1>
         <p class="sub" style="margin-bottom:14px;">운동을 완료할수록 파트너가 3단계까지 진화해!</p>
         <div class="opts" id="char-opts">
-          <div class="opt" data-char="fire" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-fire"></div></div><div><div class="t">불이 🔥</div><div class="d">열정 가득! 불꽃 파트너</div></div></div>
-          <div class="opt" data-char="water" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-water"></div></div><div><div class="t">방울이 💧</div><div class="d">시원하고 유연한 물 파트너</div></div></div>
-          <div class="opt" data-char="grass" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-grass"></div></div><div><div class="t">새싹이 🌱</div><div class="d">싱그럽게 자라는 풀 파트너</div></div></div>
+          <div class="opt" data-char="fire" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-fire"></div></div><div><div class="t">카이엔 🔥</div><div class="d">열정 가득! 불꽃 파트너</div></div></div>
+          <div class="opt" data-char="water" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-water"></div></div><div><div class="t">미스트랄 💧</div><div class="d">시원하고 유연한 물 파트너</div></div></div>
+          <div class="opt" data-char="grass" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-grass"></div></div><div><div class="t">베인 🌱</div><div class="d">싱그럽게 자라는 풀 파트너</div></div></div>
         </div>
         <div class="card" id="char-preview" style="display:none;text-align:center;margin-top:14px;background:linear-gradient(160deg,#fbfdff,#eef6ff);">
           <div style="width:120px;height:120px;margin:0 auto;" id="char-preview-m"></div>
@@ -363,12 +376,13 @@ h1,h2,h3{margin:0;font-weight:400;}
         <div class="stage-name" id="home-stage">🥚 알 단계</div>
       </div>
 
-      <div class="card">
+      <div class="card" onclick="openCalendar()" style="cursor:pointer;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
           <b style="font-size:16px;">🔥 연속 출석</b>
-          <span class="chip" style="font-size:12px;"><b id="streak-n" style="color:var(--coral-d)">0</b>일째</span>
+          <span class="chip" style="font-size:12px;"><b id="streak-n" style="color:var(--coral-d)">0</b>일째 <span style="color:var(--ink-soft)">›</span></span>
         </div>
         <div class="streak" id="streak-strip"></div>
+        <div class="sub" style="text-align:center;font-size:11px;margin-top:10px;">📅 눌러서 전체 출석 달력 보기</div>
       </div>
 
       <div class="section-title">🎁 오늘의 맞춤 추천 <span class="tag safe" id="rec-tag">안전 매칭</span></div>
@@ -438,6 +452,9 @@ h1,h2,h3{margin:0;font-weight:400;}
       <div class="section-title">🙋 내 정보 <button class="mini-edit" onclick="editP.open()">✏️ 수정</button></div>
       <div class="card" id="profile-card"></div>
 
+      <div class="section-title">📏 나의 BMI</div>
+      <div class="card" id="bmi-card"></div>
+
       <div class="section-title">📊 이번 주 기록</div>
       <div class="card">
         <div style="display:flex;justify-content:space-around;text-align:center;">
@@ -504,6 +521,26 @@ h1,h2,h3{margin:0;font-weight:400;}
     </div>
   </div>
 
+  <!-- 출석 달력 시트 -->
+  <div class="sheet-bg" id="cal-bg" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-grip"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <button class="cal-nav" onclick="calMove(-1)">‹</button>
+        <b id="cal-title" style="font-size:19px;">달력</b>
+        <button class="cal-nav" onclick="calMove(1)">›</button>
+      </div>
+      <p class="sub" id="cal-summary" style="text-align:center;margin:0 0 12px;"></p>
+      <div class="cal-grid cal-dow" id="cal-dow"></div>
+      <div class="cal-grid" id="cal-days" style="margin-top:6px;"></div>
+      <div style="display:flex;gap:16px;justify-content:center;margin-top:14px;font-size:12px;color:var(--ink-soft);">
+        <span><span class="cal-dot on"></span>출석</span>
+        <span><span class="cal-dot today"></span>오늘</span>
+      </div>
+      <button class="btn" style="margin-top:16px;" onclick="document.getElementById('cal-bg').classList.remove('show')">닫기</button>
+    </div>
+  </div>
+
   <!-- 초기화 확인 시트 -->
   <div class="sheet-bg" id="reset-bg" onclick="if(event.target===this)this.classList.remove('show')">
     <div class="sheet" onclick="event.stopPropagation()">
@@ -523,9 +560,9 @@ h1,h2,h3{margin:0;font-weight:400;}
 <script>
 /* =================== 캐릭터 (오리지널 속성 스타터 3종 × 3단 진화) =================== */
 const CHARS={
- fire:{ko:'Ember',emo:'🔥',desc:'열정 가득! 불꽃 파트너',stageNames:['🔥 Ember','💪 Blaze','👑 Infernix']},
- water:{ko:'Dewy',emo:'💧',desc:'시원하고 유연한 물 파트너',stageNames:['💧 Dewy','🌊 Splasher','🔱 Tidalix']},
- grass:{ko:'Sprout',emo:'🌿',desc:'싱그럽게 자라는 풀 파트너',stageNames:['🌱 Sprout','🌿 Leafy','🌳 Verdix']},
+ fire:{ko:'카이엔',emo:'🔥',desc:'열정 가득! 불꽃 파트너',stageNames:['🔥 카이엔','💪 파이락스','👑 볼자로스']},
+ water:{ko:'미스트랄',emo:'💧',desc:'시원하고 유연한 물 파트너',stageNames:['💧 미스트랄','🌊 티드락','🔱 리비아론']},
+ grass:{ko:'베인',emo:'🌿',desc:'싱그럽게 자라는 풀 파트너',stageNames:['🌱 베인','🌿 브램블록','🌳 베르단토르']},
 };
 const CHAR_PAL={
  fire:{main:'#ff9a5c',dark:'#ff6b6b',deep:'#e04848',lite:'#ffd66b',line:'#c43d3d',belly:'#ffe3b8'},
@@ -912,10 +949,10 @@ function thumbHtml(item,pre){
 }
 function recCard(e){
  const lvl=levelInfo(S.exp).lvl;
- if(e.minLevel>lvl){ // 레벨 잠금: 클릭 시 해금 레벨 안내
-   return `<div class="card rec locked-ex" data-id="${e.id}" onclick="toast('Lv.${e.minLevel}에 해금되는 운동이에요 🔒 조금만 더 성장하자!')">
+ if(e.minLevel>lvl){ // 레벨 잠금: 클릭 시 잠금해제 레벨 안내
+   return `<div class="card rec locked-ex" data-id="${e.id}" onclick="toast('Lv.${e.minLevel}에 잠금해제되는 운동이에요 🔒 조금만 더 성장하자!')">
    <div class="thumb">${thumbHtml(e,'t-')}</div>
-   <div class="meta"><h3>🔒 ${e.name}</h3><div class="sub">Lv.${e.minLevel}에 해금</div>
+   <div class="meta"><h3>🔒 ${e.name}</h3><div class="sub">Lv.${e.minLevel}에 잠금해제</div>
    <div><span class="tag">${e.reps}</span>${e.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
    <div class="go">🔒</div></div>`;
  }
@@ -1130,6 +1167,29 @@ function checkIn(){
  S.lastCheckIn=today; if(!S.checkDays.includes(today))S.checkDays.push(today);
 }
 
+/* =================== 출석 달력 =================== */
+let calYM=null;
+function openCalendar(){const t=new Date();calYM={y:t.getFullYear(),m:t.getMonth()};renderCalendar();document.getElementById('cal-bg').classList.add('show');}
+function calMove(d){let m=calYM.m+d,y=calYM.y;if(m<0){m=11;y--;}if(m>11){m=0;y++;}calYM={y,m};renderCalendar();}
+function renderCalendar(){
+ const {y,m}=calYM, p=n=>String(n).padStart(2,'0');
+ document.getElementById('cal-title').textContent=`${y}년 ${m+1}월`;
+ document.getElementById('cal-dow').innerHTML=['일','월','화','수','목','금','토'].map(d=>`<div>${d}</div>`).join('');
+ const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+ const todayKey=localDateKey(), todayMid=new Date(new Date().toDateString()).getTime();
+ let cells='', monthCount=0;
+ for(let i=0;i<first;i++) cells+='<div class="cal-cell empty"></div>';
+ for(let d=1;d<=days;d++){
+   const key=`${y}-${p(m+1)}-${p(d)}`;
+   const on=S.checkDays.includes(key); if(on)monthCount++;
+   const isToday=key===todayKey;
+   const future=new Date(y,m,d).getTime()>todayMid;
+   cells+=`<div class="cal-cell ${on?'on':''} ${isToday?'today':''} ${future?'future':''}">${d}</div>`;
+ }
+ document.getElementById('cal-days').innerHTML=cells;
+ document.getElementById('cal-summary').textContent=`이번 달 출석 ${monthCount}일 · 최고 연속 ${S.bestStreak}일`;
+}
+
 /* =================== GROWTH =================== */
 function renderGrowth(){
  const li=levelInfo(S.exp), stg=stageOf(li.lvl);
@@ -1148,6 +1208,27 @@ function renderGrowth(){
  document.getElementById('stat-streak').textContent=S.bestStreak;
  document.getElementById('stat-exp').textContent=S.exp;
  renderProfileCard();
+ renderBmiCard();
+}
+function renderBmiCard(){
+ const info=BMI_INFO[S.bmiClass];
+ const cheer={
+   UNDER:'정상 범위까지 조금만 더! 근력 운동과 영양을 챙기면 금방 올라올 수 있어 💪',
+   OVER:'정상 범위가 코앞이야! 저충격 운동을 꾸준히 하면 충분히 돌아올 수 있어 🙌',
+   OBESE:'무리하지 말고 천천히! 꾸준한 저충격 운동으로 정상 범위를 향해 한 걸음씩 가보자 🌱'
+ }[S.bmiClass];
+ const banner=cheer
+   ? `<p style="margin:10px 0 0;font-size:13px;color:var(--mint-d);background:#f0fffb;border-radius:12px;padding:11px 13px;line-height:1.5;">🎯 ${cheer}</p>`
+   : `<p style="margin:10px 0 0;font-size:13px;color:var(--mint-d);background:#f0fffb;border-radius:12px;padding:11px 13px;line-height:1.5;">🌟 지금이 딱 좋은 상태야! 이 컨디션을 계속 유지해보자.</p>`;
+ document.getElementById('bmi-card').innerHTML=`
+   <div style="display:flex;justify-content:space-between;align-items:center;">
+     <span style="font-size:16px;">나의 BMI <b style="color:var(--coral-d);font-size:21px;">${S.bmi}</b></span>
+     <span class="chip" style="font-size:13px;">${info.ko}</span>
+   </div>
+   <div class="bmi-meter"><div class="bmi-pin" style="left:${info.pin}%;"></div></div>
+   <div class="bmi-scale"><span>저체중</span><span>정상</span><span>과체중</span><span>비만</span></div>
+   <p class="sub" style="margin:14px 2px 0;line-height:1.5;">${info.msg}</p>
+   ${banner}`;
 }
 const GOAL_KO={MUSCLE:'💪 근육량 증가',FAT_LOSS:'🔥 체지방 감소',STAMINA:'⚡ 체력 증진'};
 const PART_KO={UPPER:'상체',LOWER:'하체',CORE:'코어/복부',FULL:'전신'};
@@ -1199,7 +1280,7 @@ function showLevelUp(lvl,evolved){
  m.innerHTML=mascot(S.char,stg,'m-ov');
  m.classList.toggle('reveal',!!evolved); // 진화 시 실루엣→빛→공개 3막 연출
  if(evolved){const f=document.getElementById('ov-flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
- document.getElementById('ov-msg').textContent=evolved?`파트너가 ${stageName(stg)}(으)로 진화했어! 🎉`:`레벨 ${lvl} 달성! 새로운 운동이 해금됐을 수도 있어.`;
+ document.getElementById('ov-msg').textContent=evolved?`파트너가 ${stageName(stg)}(으)로 진화했어! 🎉`:`레벨 ${lvl} 달성! 새로운 운동이 잠금해제됐을 수도 있어.`;
  document.getElementById('overlay').classList.add('show');
  confetti();confetti();
 }
