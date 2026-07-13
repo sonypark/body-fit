@@ -311,9 +311,9 @@ h1,h2,h3{margin:0;font-weight:400;}
       <div class="ob-step" data-step="2" style="display:none;">
         <h1 class="big" style="margin:4px 0 4px;">키와 몸무게를<br>알려줘 📏</h1>
         <p class="sub" style="margin-bottom:20px;">BMI를 계산해서 안전한 운동만 추천할게. (참고용이야!)</p>
-        <div class="field"><label>닉네임</label><input id="in-nick" type="text" value="무브짱" maxlength="8" style="width:160px;"></div>
-        <div class="field"><label>키</label><div><input id="in-h" type="number" value="165" inputmode="numeric"><span class="unit">cm</span></div></div>
-        <div class="field"><label>몸무게</label><div><input id="in-w" type="number" value="58" inputmode="numeric"><span class="unit">kg</span></div></div>
+        <div class="field"><label>닉네임</label><input id="in-nick" type="text" value="무브핏" maxlength="8" style="width:160px;"></div>
+        <div class="field"><label>키</label><div><input id="in-h" type="number" value="180" inputmode="numeric"><span class="unit">cm</span></div></div>
+        <div class="field"><label>몸무게</label><div><input id="in-w" type="number" value="70" inputmode="numeric"><span class="unit">kg</span></div></div>
         <button class="btn sky" style="margin-top:8px;" onclick="ob.calcBmi()">다음 →</button>
       </div>
 
@@ -359,7 +359,7 @@ h1,h2,h3{margin:0;font-weight:400;}
   <section id="scr-home" class="screen">
     <div class="topbar">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div><span class="sub">오늘도 힘내자,</span><br><b id="home-nick" style="font-size:20px;">무브짱</b></div>
+        <div><span class="sub">오늘도 힘내자,</span><br><b id="home-nick" style="font-size:20px;">무브핏</b></div>
         <div class="lvlbadge">⭐ Lv.<span id="home-lvl">1</span></div>
       </div>
       <div class="expwrap" style="margin-top:12px;">
@@ -938,7 +938,7 @@ const STRETCH_CATS=[['목','🦒'],['어깨','🙌'],['허리·골반','🧍'],[
 const KEY='movefit_v1';
 let S=load();
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){return fresh();}}
-function fresh(){return{onboarded:false,nickname:'무브짱',char:null,h:165,w:58,bmi:0,bmiClass:'NORMAL',goal:null,parts:[],
+function fresh(){return{onboarded:false,nickname:'무브핏',char:null,h:180,w:70,bmi:0,bmiClass:'NORMAL',goal:null,parts:[],
   exp:0,streak:0,bestStreak:0,totalDone:0,lastCheckIn:null,checkDays:[],cooldowns:{}};}
 /* 키·몸무게 공통 검증 (온보딩·프로필 수정 공용) */
 function validateBody(h,w){return !!(h&&w&&h>=80&&h<=250&&w>=20&&w<=250);}
@@ -999,7 +999,7 @@ function go(scr){
  document.getElementById('scr-'+scr).classList.add('active');
  document.querySelector('#scr-'+scr+' .scroll').scrollTop=0;
  current=scr;
- if(scr==='home')renderHome();
+ if(scr==='home'){recExpanded=false;renderHome();} // 홈 진입 시 추천 목록은 항상 접힌 기본 상태
  if(scr==='stretch')renderStretch();
  if(scr==='growth')renderGrowth();
 }
@@ -1028,7 +1028,7 @@ const ob={
  calcBmi(){
    const h=+document.getElementById('in-h').value, w=+document.getElementById('in-w').value;
    if(!validateBody(h,w)){toast('키(80~250cm)·몸무게(20~250kg)를 올바르게 입력해줘 🙏');return;}
-   S.nickname=(document.getElementById('in-nick').value||'무브짱').trim();
+   S.nickname=(document.getElementById('in-nick').value||'무브핏').trim();
    S.h=h; S.w=w;
    const m=h/100; S.bmi=+(w/(m*m)).toFixed(1); S.bmiClass=classify(S.bmi);
    const info=BMI_INFO[S.bmiClass];
@@ -1403,7 +1403,7 @@ const editP={
    const h=+document.getElementById('ed-h').value, w=+document.getElementById('ed-w').value;
    if(!validateBody(h,w)){toast('키(80~250cm)·몸무게(20~250kg)를 올바르게 입력해줘 🙏');return;}
    if(!this._goal){toast('목표를 하나 골라줘 🎯');return;}
-   S.nickname=(document.getElementById('ed-nick').value||'무브짱').trim();
+   S.nickname=(document.getElementById('ed-nick').value||'무브핏').trim();
    S.h=h; S.w=w; const m=h/100; S.bmi=+(w/(m*m)).toFixed(1); S.bmiClass=classify(S.bmi);
    S.goal=this._goal; S.parts=this._parts;
    save();
