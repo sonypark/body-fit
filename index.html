@@ -211,7 +211,7 @@ h1,h2,h3{margin:0;font-weight:400;}
 .progress-dots{display:flex;gap:6px;justify-content:center;padding:14px 0;}
 .pd{width:9px;height:9px;border-radius:50%;background:#d5e2f5;}
 .pd.on{background:var(--mint);width:24px;border-radius:999px;transition:.3s;}
-.backbtn{background:none;border:none;font-size:24px;color:var(--ink-soft);cursor:pointer;padding:14px 20px 4px;}
+.backbtn{background:none;border:none;font-family:inherit;font-size:24px;color:var(--ink-soft);cursor:pointer;padding:14px 20px 4px;}
 
 /* mini edit button + profile card + bottom sheet */
 .mini-edit{margin-left:auto;background:#fff;border:2px solid #edf1fb;border-radius:999px;
@@ -523,9 +523,9 @@ h1,h2,h3{margin:0;font-weight:400;}
 <script>
 /* =================== 캐릭터 (오리지널 속성 스타터 3종 × 3단 진화) =================== */
 const CHARS={
- fire:{ko:'불이',emo:'🔥',desc:'열정 가득! 불꽃 파트너',stageNames:['🔥 불이','💪 불끈이','👑 화룡킹']},
- water:{ko:'방울이',emo:'💧',desc:'시원하고 유연한 물 파트너',stageNames:['💧 방울이','🌊 파도리','🔱 해왕수']},
- grass:{ko:'새싹이',emo:'🌿',desc:'싱그럽게 자라는 풀 파트너',stageNames:['🌱 새싹이','🌿 푸르미','🌳 숲정령']},
+ fire:{ko:'Ember',emo:'🔥',desc:'열정 가득! 불꽃 파트너',stageNames:['🔥 Ember','💪 Blaze','👑 Infernix']},
+ water:{ko:'Dewy',emo:'💧',desc:'시원하고 유연한 물 파트너',stageNames:['💧 Dewy','🌊 Splasher','🔱 Tidalix']},
+ grass:{ko:'Sprout',emo:'🌿',desc:'싱그럽게 자라는 풀 파트너',stageNames:['🌱 Sprout','🌿 Leafy','🌳 Verdix']},
 };
 const CHAR_PAL={
  fire:{main:'#ff9a5c',dark:'#ff6b6b',deep:'#e04848',lite:'#ffd66b',line:'#c43d3d',belly:'#ffe3b8'},
@@ -722,8 +722,8 @@ function mascot(char,stage,id){
  }
  return `<svg id="${id}" viewBox="0 0 100 100" width="100%" height="100%">${style}${defs}${parts}${body}</svg>`;
 }
-/* 3단 진화 레벨 구간 */
-const STAGES=[{from:1},{from:7},{from:18}];
+/* 3단 진화 = 레벨 3단계 (Lv1·Lv2·Lv3). 각 레벨이 곧 진화 단계 */
+const STAGES=[{from:1},{from:2},{from:3}];
 function stageOf(lvl){let s=0;STAGES.forEach((st,i)=>{if(lvl>=st.from)s=i;});return s;}
 
 /* =================== EXERCISE CATALOG =================== */
@@ -771,8 +771,13 @@ function fresh(){return{onboarded:false,nickname:'무브짱',char:null,h:165,w:5
 function validateBody(h,w){return !!(h&&w&&h>=80&&h<=250&&w>=20&&w<=250);}
 function save(){localStorage.setItem(KEY,JSON.stringify(S));}
 
-/* level math: to advance from level L needs 50*(L+1) */
-function levelInfo(exp){let lvl=1,e=exp;while(e>=50*(lvl+1)){e-=50*(lvl+1);lvl++;}return{lvl,cur:e,need:50*(lvl+1)};}
+/* level math: 3레벨 고정. Lv1→Lv2는 EXP 100, Lv2→Lv3은 EXP 300에서 진화 */
+const LV2_EXP=100, LV3_EXP=300;
+function levelInfo(exp){
+ if(exp>=LV3_EXP) return {lvl:3,cur:exp-LV3_EXP,need:0,max:true};
+ if(exp>=LV2_EXP) return {lvl:2,cur:exp-LV2_EXP,need:LV3_EXP-LV2_EXP,max:false};
+ return {lvl:1,cur:exp,need:LV2_EXP,max:false};
+}
 
 /* =================== BMI =================== */
 function classify(bmi){if(bmi<18.5)return'UNDER';if(bmi<23)return'NORMAL';if(bmi<25)return'OVER';return'OBESE';}
@@ -876,10 +881,10 @@ function renderHome(){
  document.getElementById('home-nick').textContent=S.nickname;
  document.getElementById('home-lvl').textContent=li.lvl;
  document.getElementById('home-exp').textContent=li.cur;
- document.getElementById('home-need').textContent=li.need;
+ document.getElementById('home-need').textContent=li.max?'MAX':li.need;
  document.getElementById('home-mascot').innerHTML=mascot(S.char,stg,'m-home');
  document.getElementById('home-stage').textContent=stageName(stg);
- setTimeout(()=>{document.getElementById('home-expfill').style.width=(li.cur/li.need*100)+'%';},100);
+ setTimeout(()=>{document.getElementById('home-expfill').style.width=(li.max?100:(li.cur/li.need*100))+'%';},100);
  document.getElementById('streak-n').textContent=S.streak;
  // streak strip: last 7 days
  const strip=document.getElementById('streak-strip');
@@ -1023,7 +1028,7 @@ function openPlayer(id,type,keepRoutine){
 }
 
 /* ---- EXP earn rule: 같은 운동은 완료 후 COOLDOWN 동안 재획득 불가 ---- */
-const COOLDOWN_MS=3*60*60*1000;   // 같은 운동 재획득 쿨다운 3시간
+const COOLDOWN_MS=1*60*1000;   // 테스트용 1분 (운영 전환 시 3*60*60*1000 = 3시간)
 let cdTimer=null;
 function itemRemain(id){
  const t=(S.cooldowns||{})[id];
@@ -1137,7 +1142,7 @@ function renderGrowth(){
    return `<div class="dexc ${unlocked?'':'locked'} ${i===stg?'cur':''}">
      ${unlocked?'':'<span class="lockmark">🔒</span>'}
      <div class="mini">${mascot(S.char,i,'dex'+i)}</div>
-     <div style="font-size:13px;">${stageName(i)}</div><div class="lv">Lv.${st.from}+</div></div>`;
+     <div style="font-size:13px;">${stageName(i)}</div><div class="lv">Lv.${st.from}</div></div>`;
  }).join('');
  document.getElementById('stat-total').textContent=S.totalDone;
  document.getElementById('stat-streak').textContent=S.bestStreak;

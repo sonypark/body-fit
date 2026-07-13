@@ -1,0 +1,5 @@
+# OMC(oh-my-claudecode) 내부 상태 파일
+.omc/
+
+# macOS
+.DS_Store
