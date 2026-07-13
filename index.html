@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>무브핏 · 체형교정 운동 코치</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mint:#5fd0c5; --mint-d:#33b3a6;
+  --sky:#6ec5ff; --sky-d:#3aa0f0;
+  --coral:#ff8a8a; --coral-d:#ff6b6b;
+  --yellow:#ffd66b; --yellow-d:#ffbe3d;
+  --purple:#b48cff; --pink:#ff9ecb;
+  --ink:#3a3550; --ink-soft:#7b7590;
+  --bg:#eef6ff; --card:#ffffff;
+  --shadow:0 10px 24px rgba(90,120,200,.14);
+  --shadow-lg:0 18px 40px rgba(90,120,200,.22);
+  --r:22px;
+  font-family:'Jua','Gaegu',system-ui,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;}
+body{
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #d8ecff 0%, transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, #d6fff5 0%, transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  display:flex;align-items:center;justify-content:center;
+  min-height:100%;overflow:hidden;
+}
+/* phone frame */
+#app{
+  position:relative;width:min(390px,100vw);height:800px;max-height:100vh;
+  background:linear-gradient(180deg,#fbfdff,#eaf4ff);
+  border-radius:38px;overflow:hidden;
+  box-shadow:var(--shadow-lg), 0 0 0 10px #fff, 0 0 0 12px #dfeaff;
+}
+@media(max-height:820px){#app{transform:scale(.94);}}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  animation:screenIn .45s cubic-bezier(.2,.9,.3,1.2);}
+.screen.active{display:flex;}
+@keyframes screenIn{from{opacity:0;transform:translateY(18px) scale(.98);}to{opacity:1;transform:none;}}
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 20px 24px;scrollbar-width:none;}
+.scroll::-webkit-scrollbar{display:none;}
+
+/* floating decorative blobs */
+.blob{position:absolute;border-radius:50%;filter:blur(2px);opacity:.5;pointer-events:none;animation:floaty 6s ease-in-out infinite;}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0);}50%{transform:translateY(-16px) rotate(8deg);}}
+
+/* ---------- typography ---------- */
+h1,h2,h3{margin:0;font-weight:400;}
+.big{font-size:26px;line-height:1.3;}
+.sub{color:var(--ink-soft);font-size:14px;line-height:1.5;}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#fff;border-radius:999px;
+  padding:6px 13px;font-size:13px;box-shadow:var(--shadow);}
+
+/* ---------- buttons ---------- */
+.btn{border:none;border-radius:18px;padding:16px;font-family:inherit;font-size:18px;color:#fff;
+  cursor:pointer;width:100%;box-shadow:0 8px 0 var(--mint-d);background:var(--mint);
+  transition:transform .08s, box-shadow .08s;}
+.btn:active{transform:translateY(5px);box-shadow:0 3px 0 var(--mint-d);}
+.btn.coral{background:var(--coral);box-shadow:0 8px 0 var(--coral-d);}
+.btn.coral:active{box-shadow:0 3px 0 var(--coral-d);}
+.btn.sky{background:var(--sky);box-shadow:0 8px 0 var(--sky-d);}
+.btn.sky:active{box-shadow:0 3px 0 var(--sky-d);}
+.btn.yellow{background:var(--yellow);color:#8a6a10;box-shadow:0 8px 0 var(--yellow-d);}
+.btn:disabled{filter:grayscale(.5) opacity(.6);box-shadow:none;transform:none;cursor:default;}
+.ghost{background:#fff;color:var(--ink);box-shadow:var(--shadow);border:2px solid #eef1fb;}
+.ghost:active{transform:translateY(2px);}
+
+/* option pills */
+.opts{display:flex;flex-direction:column;gap:12px;}
+.opt{display:flex;align-items:center;gap:14px;background:#fff;border:3px solid #edf1fb;border-radius:20px;
+  padding:16px;cursor:pointer;transition:.18s;box-shadow:var(--shadow);}
+.opt:active{transform:scale(.98);}
+.opt.sel{border-color:var(--mint);background:#f2fffb;box-shadow:0 10px 22px rgba(95,208,197,.3);}
+.opt .emo{font-size:30px;width:46px;height:46px;display:grid;place-items:center;background:#f3f7ff;border-radius:14px;}
+.opt.sel .emo{background:#dbfff7;}
+.opt .t{font-size:18px;}
+.opt .d{font-size:12.5px;color:var(--ink-soft);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid2 .opt{flex-direction:column;text-align:center;gap:8px;padding:16px 10px;}
+
+/* inputs */
+.field{background:#fff;border-radius:18px;padding:14px 18px;box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.field label{font-size:16px;color:var(--ink-soft);}
+.field input{border:none;outline:none;font-family:inherit;font-size:22px;text-align:right;width:120px;color:var(--ink);background:transparent;}
+.field .unit{color:var(--ink-soft);font-size:15px;margin-left:4px;}
+
+/* cards */
+.card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:14px;}
+.rec{display:flex;gap:14px;align-items:center;cursor:pointer;transition:.15s;}
+.rec:active{transform:scale(.98);}
+.rec .thumb{width:74px;height:74px;border-radius:16px;flex:none;overflow:hidden;position:relative;background:linear-gradient(135deg,#eaf4ff,#e7fff8);}
+.rec .meta{flex:1;min-width:0;}
+.rec .meta h3{font-size:17px;}
+.rec .meta .sub{font-size:12.5px;}
+.tag{display:inline-block;font-size:11px;background:#eef3ff;color:#6d7fb0;border-radius:8px;padding:2px 8px;margin:4px 4px 0 0;}
+.tag.safe{background:#e4fff4;color:#22a58e;}
+.rec .go{font-size:22px;color:var(--mint-d);}
+
+/* header bar (home) */
+.topbar{padding:20px 20px 6px;}
+.expwrap{background:#fff;border-radius:16px;padding:10px 14px;box-shadow:var(--shadow);}
+.expbar{height:14px;background:#eef1fb;border-radius:999px;overflow:hidden;margin-top:6px;}
+.expfill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--yellow),var(--coral));
+  transition:width .9s cubic-bezier(.2,.9,.3,1.2);box-shadow:0 0 10px rgba(255,180,90,.6) inset;}
+.lvlbadge{background:linear-gradient(135deg,var(--purple),var(--sky));color:#fff;border-radius:12px;
+  padding:5px 11px;font-size:14px;display:inline-flex;gap:5px;align-items:center;}
+
+/* streak strip */
+.streak{display:flex;gap:6px;justify-content:space-between;}
+.day{flex:1;text-align:center;font-size:11px;color:var(--ink-soft);}
+.dot{width:30px;height:30px;border-radius:50%;background:#eef1fb;margin:4px auto 2px;display:grid;place-items:center;font-size:15px;}
+.dot.on{background:linear-gradient(135deg,var(--coral),var(--yellow));color:#fff;box-shadow:0 4px 10px rgba(255,140,120,.5);animation:pop .4s;}
+.dot.today{outline:3px solid var(--mint);}
+@keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.25);}100%{transform:scale(1);}}
+
+/* mascot stage on home */
+.hero{position:relative;text-align:center;padding:6px 0 2px;}
+.hero .stage-name{font-size:14px;color:var(--purple);}
+.hero .ring{position:absolute;inset:0;margin:auto;width:190px;height:190px;border-radius:50%;
+  background:radial-gradient(circle,rgba(180,140,255,.18),transparent 70%);animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(.9);opacity:.6;}50%{transform:scale(1.08);opacity:1;}}
+.mascot{width:170px;height:170px;position:relative;z-index:2;margin:0 auto;}
+.floaty-m{animation:mfloat 3.4s ease-in-out infinite;}
+@keyframes mfloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+
+/* nav */
+.nav{display:flex;background:#fff;border-top:1px solid #eef1fb;padding:8px 6px calc(8px + env(safe-area-inset-bottom));}
+.nav button{flex:1;background:none;border:none;font-family:inherit;color:var(--ink-soft);font-size:11px;
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 0;transition:.15s;}
+.nav button .ic{font-size:22px;}
+.nav button.on{color:var(--mint-d);transform:translateY(-3px);}
+.nav button.on .ic{filter:drop-shadow(0 4px 6px rgba(95,208,197,.5));}
+
+/* player */
+.stage-video{aspect-ratio:1/1;border-radius:26px;overflow:hidden;position:relative;
+  background:linear-gradient(160deg,#e9f5ff,#e4fff7);box-shadow:var(--shadow);}
+.badge-soon{position:absolute;top:12px;left:12px;background:rgba(58,53,80,.8);color:#fff;font-size:11px;
+  padding:5px 10px;border-radius:999px;z-index:5;backdrop-filter:blur(4px);}
+.playbtn{position:absolute;inset:0;margin:auto;width:76px;height:76px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.9);color:var(--coral-d);font-size:30px;z-index:6;box-shadow:var(--shadow-lg);
+  display:grid;place-items:center;animation:pulseBtn 1.6s infinite;}
+@keyframes pulseBtn{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.progress-ring{position:absolute;top:12px;right:12px;z-index:5;}
+.rep-counter{position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:5;
+  font-size:15px;color:var(--ink);text-shadow:0 1px 0 #fff;}
+.rep-counter b{font-size:28px;color:var(--coral-d);}
+/* real video mode (YouTube Shorts = portrait) */
+#pl-video{display:none;}
+.stage-video.hasvid{aspect-ratio:9/16;width:auto;height:min(500px,58vh);margin:0 auto;background:#000;}
+.stage-video.hasvid #pl-video{display:block;position:absolute;inset:0;z-index:7;}
+.stage-video.hasvid #pl-video iframe{width:100%;height:100%;border:0;border-radius:26px;}
+.rec .thumb img{width:100%;height:100%;object-fit:cover;}
+#pl-yt{margin:10px auto 0;text-align:center;background:#fff;color:var(--coral-d);text-decoration:none;
+  font-family:inherit;font-size:14px;padding:11px;border-radius:14px;box-shadow:var(--shadow);border:2px solid #ffe0e0;width:100%;}
+#pl-yt:active{transform:translateY(2px);}
+
+/* evolution / levelup overlay */
+.overlay{position:absolute;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 40%, rgba(180,140,255,.55), rgba(58,53,80,.85));backdrop-filter:blur(3px);
+  color:#fff;text-align:center;padding:30px;}
+.overlay.show{display:flex;animation:screenIn .4s;}
+.overlay .burst{font-size:15px;letter-spacing:2px;color:var(--yellow);}
+.overlay .title{font-size:34px;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.15);}
+.overlay .m2{width:200px;height:200px;margin:10px auto;animation:evo 1.1s cubic-bezier(.2,.9,.3,1.4);}
+@keyframes evo{0%{transform:scale(0) rotate(-40deg);}60%{transform:scale(1.2) rotate(10deg);}100%{transform:scale(1) rotate(0);}}
+.rays{position:absolute;width:400px;height:400px;background:conic-gradient(from 0deg,transparent 0 18deg,rgba(255,255,255,.25) 18deg 36deg);
+  border-radius:50%;animation:spin 8s linear infinite;z-index:-1;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* confetti */
+.confetti{position:absolute;width:10px;height:14px;top:-20px;z-index:60;opacity:.95;border-radius:2px;pointer-events:none;}
+/* completed / cooldown done button */
+.btn.done,.btn.done:disabled{filter:none;opacity:1;background:#e6f7ec;color:#3a9d5a;
+  box-shadow:inset 0 0 0 2px #bfe6cd;cursor:default;transform:none;}
+.tag.done{background:#e6f7ec;color:#3a9d5a;}
+.rec.completed .thumb::after{content:"✅";position:absolute;inset:0;display:grid;place-items:center;
+  font-size:26px;background:rgba(255,255,255,.55);}
+#pl-note{text-align:center;font-size:12px;color:var(--ink-soft);margin:0 0 10px;line-height:1.5;}
+@keyframes fall{to{transform:translateY(860px) rotate(720deg);opacity:.9;}}
+
+/* growth / dex */
+.dex{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.dexc{background:#fff;border-radius:18px;padding:12px 8px;text-align:center;box-shadow:var(--shadow);position:relative;}
+.dexc.locked{filter:grayscale(1);opacity:.55;}
+.dexc.cur{outline:3px solid var(--mint);}
+.dexc .mini{width:74px;height:74px;margin:0 auto;}
+.dexc .lv{font-size:11px;color:var(--ink-soft);}
+.lockmark{position:absolute;top:8px;right:10px;font-size:16px;}
+
+/* toast */
+#toast{position:absolute;left:50%;bottom:88px;transform:translateX(-50%) translateY(30px);z-index:70;
+  background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.35s;box-shadow:var(--shadow-lg);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast .exp{color:var(--yellow);}
+
+.bmi-meter{height:16px;border-radius:999px;background:linear-gradient(90deg,#6ec5ff,#5fd0c5,#ffd66b,#ff8a8a);position:relative;margin:16px 0 8px;}
+.bmi-pin{position:absolute;top:-8px;width:4px;height:32px;background:var(--ink);border-radius:4px;transform:translateX(-2px);transition:left .8s cubic-bezier(.2,.9,.3,1.2);}
+.bmi-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-soft);}
+.section-title{font-size:19px;margin:18px 4px 10px;display:flex;align-items:center;gap:8px;}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.pill{background:#fff;border:2px solid #edf1fb;border-radius:999px;padding:8px 15px;font-size:14px;cursor:pointer;box-shadow:var(--shadow);}
+.pill.on{background:var(--sky);color:#fff;border-color:var(--sky-d);}
+.progress-dots{display:flex;gap:6px;justify-content:center;padding:14px 0;}
+.pd{width:9px;height:9px;border-radius:50%;background:#d5e2f5;}
+.pd.on{background:var(--mint);width:24px;border-radius:999px;transition:.3s;}
+.backbtn{background:none;border:none;font-size:24px;color:var(--ink-soft);cursor:pointer;padding:14px 20px 4px;}
+
+/* mini edit button + profile card + bottom sheet */
+.mini-edit{margin-left:auto;background:#fff;border:2px solid #edf1fb;border-radius:999px;
+  font-family:inherit;font-size:13px;color:var(--mint-d);padding:5px 12px;cursor:pointer;box-shadow:var(--shadow);}
+.mini-edit:active{transform:translateY(2px);}
+.prow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #eef1fb;font-size:15px;}
+.prow:last-child{border-bottom:none;}
+.prow .k{color:var(--ink-soft);}
+.prow .v{color:var(--ink);}
+.sheet-bg{position:absolute;inset:0;z-index:80;background:rgba(58,53,80,.45);backdrop-filter:blur(2px);
+  display:none;align-items:flex-end;}
+.sheet-bg.show{display:flex;animation:screenIn .25s;}
+.sheet{background:#fff;width:100%;border-radius:28px 28px 0 0;padding:16px 20px calc(20px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 30px rgba(90,120,200,.25);animation:sheetUp .35s cubic-bezier(.2,.9,.3,1.2);max-height:88%;display:flex;flex-direction:column;}
+@keyframes sheetUp{from{transform:translateY(100%);}to{transform:none;}}
+.sheet-grip{width:44px;height:5px;border-radius:999px;background:#e0e6f5;margin:0 auto 12px;}
+.sheet-scroll{overflow-y:auto;scrollbar-width:none;}
+.sheet-scroll::-webkit-scrollbar{display:none;}
+#ed-goal .opt{padding:12px;}#ed-goal .emo{width:40px;height:40px;font-size:24px;}
+#ed-part .opt{padding:12px 8px;}
+
+/* 진화 3막 연출: 실루엣 → 빛 플래시 → 새 모습 공개 */
+.m2.reveal{animation:evoReveal 1.8s cubic-bezier(.2,.9,.3,1.2) both;}
+@keyframes evoReveal{0%{filter:brightness(0) saturate(0);transform:scale(.72)}42%{filter:brightness(0) saturate(0);transform:scale(1.02)}58%{filter:brightness(5);transform:scale(1.18)}78%{filter:brightness(1.5)}100%{filter:brightness(1);transform:scale(1)}}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;}
+.flash.go{animation:flashGo 1.8s ease;}
+@keyframes flashGo{0%,42%{opacity:0}56%{opacity:.95}75%{opacity:0}100%{opacity:0}}
+
+/* 홈 캐릭터 탭 리액션 */
+#home-mascot{cursor:pointer;}
+.mascot.hop{animation:hop .55s cubic-bezier(.2,.9,.3,1.4);}
+@keyframes hop{0%{transform:translateY(0)}40%{transform:translateY(-20px) scale(1.06)}100%{transform:translateY(0)}}
+
+/* 레벨 잠금 운동 카드 */
+.rec.locked-ex{opacity:.6;}
+.rec.locked-ex .thumb{filter:grayscale(1);}
+
+/* 모션 저감 설정 존중 */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="blob" style="width:80px;height:80px;background:var(--pink);top:60px;left:-20px;"></div>
+  <div class="blob" style="width:50px;height:50px;background:var(--yellow);top:120px;right:20px;animation-delay:1.5s;"></div>
+
+  <!-- ===== ONBOARDING ===== -->
+  <section id="scr-onboard" class="screen active">
+    <button class="backbtn" id="ob-back" onclick="ob.prev()" style="display:none;position:absolute;top:2px;left:0;z-index:5;">‹</button>
+    <div class="scroll" style="display:flex;flex-direction:column;">
+      <div class="progress-dots" id="ob-dots"></div>
+
+      <!-- step 0: welcome -->
+      <div class="ob-step" data-step="0" style="text-align:center;padding-top:10px;">
+        <div style="display:flex;justify-content:center;align-items:flex-end;margin:8px 0 4px;">
+          <div class="floaty-m" style="width:104px;height:104px;animation-delay:.4s;" id="wel-fire"></div>
+          <div class="floaty-m" style="width:122px;height:122px;" id="wel-water"></div>
+          <div class="floaty-m" style="width:104px;height:104px;animation-delay:.8s;" id="wel-grass"></div>
+        </div>
+        <h1 class="big">안녕! 우리는 <span style="color:var(--mint-d)">무브 프렌즈</span>야 👋</h1>
+        <p class="sub" style="margin:10px 24px 24px;">너의 체형과 목표에 딱 맞는 운동을 골라줄게.<br>파트너를 고르면 같이 운동하며 진화해!</p>
+        <button class="btn" onclick="ob.next()">시작하기 ✨</button>
+      </div>
+
+      <!-- step 1: character select -->
+      <div class="ob-step" data-step="1" style="display:none;">
+        <h1 class="big" style="margin-bottom:4px;">함께할 파트너를 골라줘! 🤝</h1>
+        <p class="sub" style="margin-bottom:14px;">운동을 완료할수록 파트너가 3단계까지 진화해!</p>
+        <div class="opts" id="char-opts">
+          <div class="opt" data-char="fire" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-fire"></div></div><div><div class="t">불이 🔥</div><div class="d">열정 가득! 불꽃 파트너</div></div></div>
+          <div class="opt" data-char="water" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-water"></div></div><div><div class="t">방울이 💧</div><div class="d">시원하고 유연한 물 파트너</div></div></div>
+          <div class="opt" data-char="grass" onclick="ob.pickChar(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;" id="co-grass"></div></div><div><div class="t">새싹이 🌱</div><div class="d">싱그럽게 자라는 풀 파트너</div></div></div>
+        </div>
+        <div class="card" id="char-preview" style="display:none;text-align:center;margin-top:14px;background:linear-gradient(160deg,#fbfdff,#eef6ff);">
+          <div style="width:120px;height:120px;margin:0 auto;" id="char-preview-m"></div>
+          <p class="sub" id="char-preview-evo" style="margin:4px 0 0;"></p>
+        </div>
+        <button id="char-next" class="btn coral" style="margin-top:16px;" disabled onclick="ob.next()">이 파트너로 정했어! →</button>
+      </div>
+
+      <!-- step 2: body -->
+      <div class="ob-step" data-step="2" style="display:none;">
+        <h1 class="big" style="margin:4px 0 4px;">키와 몸무게를<br>알려줘 📏</h1>
+        <p class="sub" style="margin-bottom:20px;">BMI를 계산해서 안전한 운동만 추천할게. (참고용이야!)</p>
+        <div class="field"><label>닉네임</label><input id="in-nick" type="text" value="무브짱" maxlength="8" style="width:160px;"></div>
+        <div class="field"><label>키</label><div><input id="in-h" type="number" value="165" inputmode="numeric"><span class="unit">cm</span></div></div>
+        <div class="field"><label>몸무게</label><div><input id="in-w" type="number" value="58" inputmode="numeric"><span class="unit">kg</span></div></div>
+        <button class="btn sky" style="margin-top:8px;" onclick="ob.calcBmi()">다음 →</button>
+      </div>
+
+      <!-- step 3: bmi result -->
+      <div class="ob-step" data-step="3" style="display:none;text-align:center;">
+        <div class="mascot floaty-m" id="bmi-mascot" style="width:150px;height:150px;"></div>
+        <h1 class="big">너의 BMI는 <span id="bmi-val" style="color:var(--coral-d)">--</span></h1>
+        <div class="chip" id="bmi-class" style="margin-top:8px;font-size:16px;">--</div>
+        <div class="bmi-meter"><div class="bmi-pin" id="bmi-pin" style="left:40%;"></div></div>
+        <div class="bmi-scale"><span>저체중</span><span>정상</span><span>과체중</span><span>비만</span></div>
+        <p class="sub" id="bmi-msg" style="margin:16px 10px 20px;"></p>
+        <button class="btn" onclick="ob.next()">목표 정하기 →</button>
+      </div>
+
+      <!-- step 4: goal -->
+      <div class="ob-step" data-step="4" style="display:none;">
+        <h1 class="big" style="margin-bottom:4px;">목표가 뭐야? 🎯</h1>
+        <p class="sub" style="margin-bottom:18px;">하나만 골라줘. 목표에 맞춰 운동이 달라져!</p>
+        <div class="opts" id="goal-opts">
+          <div class="opt" data-goal="MUSCLE" onclick="ob.pickGoal(this)"><div class="emo">💪</div><div><div class="t">근육량 증가</div><div class="d">탄탄하게 근력 키우기</div></div></div>
+          <div class="opt" data-goal="FAT_LOSS" onclick="ob.pickGoal(this)"><div class="emo">🔥</div><div><div class="t">체지방 감소</div><div class="d">가볍고 건강하게</div></div></div>
+          <div class="opt" data-goal="STAMINA" onclick="ob.pickGoal(this)"><div class="emo">⚡</div><div><div class="t">체력 증진</div><div class="d">지치지 않는 몸 만들기</div></div></div>
+        </div>
+        <button id="goal-next" class="btn coral" style="margin-top:20px;" disabled onclick="ob.next()">다음 →</button>
+      </div>
+
+      <!-- step 5: parts -->
+      <div class="ob-step" data-step="5" style="display:none;">
+        <h1 class="big" style="margin-bottom:4px;">어디를 집중할까? 🦵</h1>
+        <p class="sub" style="margin-bottom:18px;">여러 개 골라도 돼!</p>
+        <div class="grid2" id="part-opts">
+          <div class="opt" data-part="UPPER" onclick="ob.togglePart(this)"><div class="emo">🙆</div><div class="t">상체</div></div>
+          <div class="opt" data-part="LOWER" onclick="ob.togglePart(this)"><div class="emo">🦵</div><div class="t">하체</div></div>
+          <div class="opt" data-part="CORE" onclick="ob.togglePart(this)"><div class="emo">🧍</div><div class="t">코어/복부</div></div>
+          <div class="opt" data-part="FULL" onclick="ob.togglePart(this)"><div class="emo">🤸</div><div class="t">전신</div></div>
+        </div>
+        <button id="part-next" class="btn" style="margin-top:22px;" disabled onclick="ob.finish()">파트너 만나러 가기 🎉</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOME ===== -->
+  <section id="scr-home" class="screen">
+    <div class="topbar">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div><span class="sub">오늘도 힘내자,</span><br><b id="home-nick" style="font-size:20px;">무브짱</b></div>
+        <div class="lvlbadge">⭐ Lv.<span id="home-lvl">1</span></div>
+      </div>
+      <div class="expwrap" style="margin-top:12px;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-soft);">
+          <span>EXP</span><span><span id="home-exp">0</span> / <span id="home-need">100</span></span>
+        </div>
+        <div class="expbar"><div class="expfill" id="home-expfill"></div></div>
+      </div>
+    </div>
+    <div class="scroll">
+      <div class="hero">
+        <div class="ring"></div>
+        <div class="mascot floaty-m" id="home-mascot" onclick="mascotTap()"></div>
+        <div class="stage-name" id="home-stage">🥚 알 단계</div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <b style="font-size:16px;">🔥 연속 출석</b>
+          <span class="chip" style="font-size:12px;"><b id="streak-n" style="color:var(--coral-d)">0</b>일째</span>
+        </div>
+        <div class="streak" id="streak-strip"></div>
+      </div>
+
+      <div class="section-title">🎁 오늘의 맞춤 추천 <span class="tag safe" id="rec-tag">안전 매칭</span></div>
+      <div id="rec-list"></div>
+      <button id="rec-more" class="ghost btn" style="display:none;margin-bottom:14px;" onclick="toggleMore()"></button>
+
+      <button class="btn yellow" onclick="go('stretch')" style="margin-top:6px;">🪑 쉬는 시간 10분 스트레칭</button>
+    </div>
+    <nav class="nav" id="nav-home"></nav>
+  </section>
+
+  <!-- ===== STRETCH ===== -->
+  <section id="scr-stretch" class="screen">
+    <div class="topbar"><h1 class="big">🪑 틈새 스트레칭</h1><p class="sub">교실 의자에 앉아서 10분! 부위를 골라봐.</p></div>
+    <div class="scroll">
+      <div class="card" style="background:linear-gradient(135deg,#fff6e0,#ffe9e9);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="font-size:40px;">⏱️</div>
+          <div><b style="font-size:17px;">쉬는 시간 10분 풀세트</b><br><span class="sub">거북목·굽은등·손목·하체 순환 한번에</span></div>
+        </div>
+        <button class="btn coral" style="margin-top:14px;" onclick="startRoutine('ALL')">전체 루틴 시작 ▶</button>
+      </div>
+      <div class="section-title">부위별 루틴</div>
+      <div id="stretch-list"></div>
+    </div>
+    <nav class="nav" id="nav-stretch"></nav>
+  </section>
+
+  <!-- ===== PLAYER ===== -->
+  <section id="scr-player" class="screen">
+    <button class="backbtn" onclick="back()">‹ 뒤로</button>
+    <div class="scroll">
+      <h1 class="big" id="pl-name" style="margin:0 4px 12px;">운동 이름</h1>
+      <div class="stage-video" id="pl-stage">
+        <span class="badge-soon" id="pl-badge">🎬 미리보기</span>
+        <div class="progress-ring" id="pl-ring"></div>
+        <div id="pl-figure" style="position:absolute;inset:0;"></div>
+        <button class="playbtn" id="pl-play" onclick="player.toggle()">▶</button>
+        <div class="rep-counter" id="pl-rep"></div>
+        <div id="pl-video"></div>
+      </div>
+      <a id="pl-yt" href="#" target="_blank" rel="noopener" style="display:none;">▶ 유튜브에서 보기</a>
+      <div class="card" style="margin-top:16px;">
+        <div class="pillrow" id="pl-tags"></div>
+        <p class="sub" id="pl-desc" style="margin:6px 0 0;line-height:1.6;"></p>
+      </div>
+      <div class="card" style="background:#f3fbff;">
+        <b>👀 이렇게 해요</b>
+        <p class="sub" id="pl-how" style="margin:8px 0 0;line-height:1.6;"></p>
+      </div>
+      <p id="pl-note"></p>
+      <button class="btn" id="pl-done" onclick="player.complete()">✅ 완료했어요!</button>
+    </div>
+  </section>
+
+  <!-- ===== GROWTH ===== -->
+  <section id="scr-growth" class="screen">
+    <div class="topbar"><h1 class="big">🌱 성장 도감</h1><p class="sub">파트너를 키워서 최종 진화까지!</p></div>
+    <div class="scroll">
+      <div class="card" style="text-align:center;background:linear-gradient(160deg,#efe7ff,#e7f3ff);">
+        <div class="mascot floaty-m" id="growth-mascot" style="width:150px;height:150px;"></div>
+        <div class="lvlbadge" style="font-size:16px;">⭐ Lv.<span id="growth-lvl">1</span></div>
+        <p class="sub" id="growth-next" style="margin-top:10px;"></p>
+      </div>
+      <div class="section-title">진화 단계</div>
+      <div class="dex" id="dex"></div>
+      <div class="section-title">🙋 내 정보 <button class="mini-edit" onclick="editP.open()">✏️ 수정</button></div>
+      <div class="card" id="profile-card"></div>
+
+      <div class="section-title">📊 이번 주 기록</div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-around;text-align:center;">
+          <div><b style="font-size:26px;color:var(--mint-d)" id="stat-total">0</b><br><span class="sub">완료 운동</span></div>
+          <div><b style="font-size:26px;color:var(--coral-d)" id="stat-streak">0</b><br><span class="sub">최고 연속</span></div>
+          <div><b style="font-size:26px;color:var(--purple)" id="stat-exp">0</b><br><span class="sub">누적 EXP</span></div>
+        </div>
+      </div>
+      <button class="ghost btn" onclick="resetAll()" style="margin-top:6px;">🔄 처음부터 다시</button>
+    </div>
+    <nav class="nav" id="nav-growth"></nav>
+  </section>
+
+  <!-- overlays -->
+  <div class="overlay" id="overlay">
+    <div class="rays"></div>
+    <div class="flash" id="ov-flash"></div>
+    <div class="burst" id="ov-burst">LEVEL UP!</div>
+    <div class="title" id="ov-title">Lv.2</div>
+    <div class="m2" id="ov-mascot"></div>
+    <p id="ov-msg" style="font-size:16px;margin:0 20px;"></p>
+    <button class="btn yellow" style="width:200px;margin-top:24px;" onclick="closeOverlay()">좋아! 🎉</button>
+  </div>
+
+  <!-- edit profile bottom sheet -->
+  <div class="sheet-bg" id="edit-bg" onclick="editP.close(event)">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-grip"></div>
+      <h2 class="big" style="font-size:22px;margin-bottom:2px;">내 정보 수정 ✏️</h2>
+      <p class="sub" style="margin-bottom:14px;">언제든 바꿀 수 있어요. 저장하면 추천도 새로 맞춰줄게!</p>
+      <div class="sheet-scroll">
+        <div class="field"><label>닉네임</label><input id="ed-nick" type="text" maxlength="8" style="width:160px;"></div>
+        <div class="field"><label>키</label><div><input id="ed-h" type="number" inputmode="numeric"><span class="unit">cm</span></div></div>
+        <div class="field"><label>몸무게</label><div><input id="ed-w" type="number" inputmode="numeric"><span class="unit">kg</span></div></div>
+        <div class="section-title" style="font-size:16px;margin:16px 4px 8px;">🎯 목표</div>
+        <div class="opts" id="ed-goal">
+          <div class="opt" data-goal="MUSCLE" onclick="editP.pickGoal(this)"><div class="emo">💪</div><div class="t">근육량 증가</div></div>
+          <div class="opt" data-goal="FAT_LOSS" onclick="editP.pickGoal(this)"><div class="emo">🔥</div><div class="t">체지방 감소</div></div>
+          <div class="opt" data-goal="STAMINA" onclick="editP.pickGoal(this)"><div class="emo">⚡</div><div class="t">체력 증진</div></div>
+        </div>
+        <div class="section-title" style="font-size:16px;margin:16px 4px 8px;">🦵 집중 부위</div>
+        <div class="grid2" id="ed-part">
+          <div class="opt" data-part="UPPER" onclick="editP.togglePart(this)"><div class="emo">🙆</div><div class="t">상체</div></div>
+          <div class="opt" data-part="LOWER" onclick="editP.togglePart(this)"><div class="emo">🦵</div><div class="t">하체</div></div>
+          <div class="opt" data-part="CORE" onclick="editP.togglePart(this)"><div class="emo">🧍</div><div class="t">코어/복부</div></div>
+          <div class="opt" data-part="FULL" onclick="editP.togglePart(this)"><div class="emo">🤸</div><div class="t">전신</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="ghost btn" style="flex:1;" onclick="editP.close()">취소</button>
+        <button class="btn" style="flex:2;" onclick="editP.save()">저장하기 💾</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 캐릭터 선택 시트 (기존 사용자 마이그레이션) -->
+  <div class="sheet-bg" id="char-bg">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-grip"></div>
+      <h2 class="big" style="font-size:22px;margin-bottom:2px;">새 파트너 등장! 🤝</h2>
+      <p class="sub" style="margin-bottom:14px;">캐릭터가 새로워졌어요. 함께 운동할 파트너를 골라주세요!</p>
+      <div class="sheet-scroll"><div class="opts" id="mig-opts"></div></div>
+      <button class="btn" id="mig-save" style="margin-top:16px;" disabled onclick="charPick.save()">이 파트너로 시작! ✨</button>
+    </div>
+  </div>
+
+  <!-- 초기화 확인 시트 -->
+  <div class="sheet-bg" id="reset-bg" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-grip"></div>
+      <h2 class="big" style="font-size:22px;margin-bottom:2px;">처음부터 다시 시작할까요? 🔄</h2>
+      <p class="sub" style="margin-bottom:14px;">레벨·경험치·출석 기록이 모두 사라져요. 되돌릴 수 없어요!</p>
+      <div style="display:flex;gap:10px;">
+        <button class="ghost btn" style="flex:1;" onclick="document.getElementById('reset-bg').classList.remove('show')">취소</button>
+        <button class="btn coral" style="flex:1;" onclick="doReset()">초기화 할래요</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<script>
+/* =================== 캐릭터 (오리지널 속성 스타터 3종 × 3단 진화) =================== */
+const CHARS={
+ fire:{ko:'불이',emo:'🔥',desc:'열정 가득! 불꽃 파트너',stageNames:['🔥 불이','💪 불끈이','👑 화룡킹']},
+ water:{ko:'방울이',emo:'💧',desc:'시원하고 유연한 물 파트너',stageNames:['💧 방울이','🌊 파도리','🔱 해왕수']},
+ grass:{ko:'새싹이',emo:'🌿',desc:'싱그럽게 자라는 풀 파트너',stageNames:['🌱 새싹이','🌿 푸르미','🌳 숲정령']},
+};
+const CHAR_PAL={
+ fire:{main:'#ff9a5c',dark:'#ff6b6b',deep:'#e04848',lite:'#ffd66b',line:'#c43d3d',belly:'#ffe3b8'},
+ water:{main:'#7fd0ff',dark:'#3aa0f0',deep:'#2b6fd4',lite:'#cdeeff',line:'#2f6fb8',belly:'#e4f5ff'},
+ grass:{main:'#8fe08f',dark:'#4cba6b',deep:'#2e9e55',lite:'#d6ffd6',line:'#2e7d46',belly:'#effadf'},
+};
+function charInfo(){return CHARS[S.char]||CHARS.fire;}
+function stageName(stg){return charInfo().stageNames[Math.max(0,Math.min(2,stg))];}
+
+function mascot(char,stage,id){
+ char=CHARS[char]?char:'fire';
+ stage=Math.max(0,Math.min(2,stage||0));
+ const P=CHAR_PAL[char];
+ // 공통: 그라데이션(음영) + 하이라이트
+ const defs=`<defs>
+  <linearGradient id="bd${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${P.main}"/><stop offset="100%" stop-color="${P.dark}"/></linearGradient>
+  <radialGradient id="hl${id}" cx=".35" cy=".28" r=".85"><stop offset="0%" stop-color="#fff" stop-opacity=".5"/><stop offset="48%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+ </defs>`;
+ // 공통 애니메이션: 눈 깜빡임 / 호흡 / 불꽃 흔들림 / 파티클 부유
+ const style=`<style>
+  #${id} .eye{animation:bl${id} 4.2s infinite;transform-origin:center;transform-box:fill-box}
+  @keyframes bl${id}{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
+  #${id} .bob{animation:bob${id} 2.8s ease-in-out infinite;transform-origin:50px 62px}
+  @keyframes bob${id}{0%,100%{transform:translateY(0) scale(1,1)}50%{transform:translateY(-3px) scale(1.015,.985)}}
+  #${id} .fl{animation:fl${id} .9s ease-in-out infinite alternate;transform-origin:50% 100%;transform-box:fill-box}
+  @keyframes fl${id}{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.12) rotate(4deg)}}
+  #${id} .pt{animation:pt${id} 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  @keyframes pt${id}{0%,100%{transform:translateY(0) rotate(0);opacity:.85}50%{transform:translateY(-8px) rotate(12deg);opacity:.3}}
+ </style>`;
+ // 공통 얼굴: 아기(0~1단계) 왕눈이 vs 3단계 날카로운 눈매
+ const eyes= stage<2
+  ? `<ellipse class="eye" cx="42" cy="47" rx="6" ry="7.5" fill="#3a3550"/><ellipse class="eye" cx="58" cy="47" rx="6" ry="7.5" fill="#3a3550"/>
+     <circle cx="44.5" cy="44.5" r="2.4" fill="#fff"/><circle cx="60.5" cy="44.5" r="2.4" fill="#fff"/>`
+  : `<path d="M33 41 l13 4" stroke="${P.line}" stroke-width="2.6" stroke-linecap="round"/><path d="M67 41 l-13 4" stroke="${P.line}" stroke-width="2.6" stroke-linecap="round"/>
+     <ellipse class="eye" cx="41" cy="49" rx="5" ry="6" fill="#3a3550"/><ellipse class="eye" cx="59" cy="49" rx="5" ry="6" fill="#3a3550"/>
+     <circle cx="43" cy="47" r="2" fill="#fff"/><circle cx="61" cy="47" r="2" fill="#fff"/>`;
+ const cheeks=`<circle cx="31" cy="57" r="4.5" fill="#ff9ecb" opacity=".55"/><circle cx="69" cy="57" r="4.5" fill="#ff9ecb" opacity=".55"/>`;
+ // 속성별 idle 파티클 (단계 높을수록 증가)
+ const spots=[[14,38,0],[86,44,1.1],[20,76,.6],[80,78,1.7],[10,56,2.2]].slice(0,stage+2);
+ const pshape={
+  fire:(x,y,d)=>`<path class="pt" style="animation-delay:${d}s" d="M${x} ${y+5} C${x-4} ${y+1} ${x-2.5} ${y-4} ${x} ${y-7} C${x+2.5} ${y-4} ${x+4} ${y+1} ${x} ${y+5}Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="1"/>`,
+  water:(x,y,d)=>`<path class="pt" style="animation-delay:${d}s" d="M${x} ${y-6} C${x+4} ${y-1} ${x+4} ${y+3.5} ${x} ${y+5} C${x-4} ${y+3.5} ${x-4} ${y-1} ${x} ${y-6}Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="1"/>`,
+  grass:(x,y,d)=>`<path class="pt" style="animation-delay:${d}s" d="M${x-5} ${y} Q${x} ${y-7} ${x+5} ${y} Q${x} ${y+7} ${x-5} ${y}Z" fill="${P.main}" stroke="${P.deep}" stroke-width="1"/>`,
+ };
+ const parts=spots.map(([x,y,d])=>pshape[char](x,y,d)).join('');
+ const smileBaby=`<path d="M45 61 q5 5 10 0" stroke="#3a3550" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+ const feet=`<ellipse cx="40" cy="88" rx="7" ry="4" fill="${P.dark}" stroke="${P.line}" stroke-width="1.5"/><ellipse cx="60" cy="88" rx="7" ry="4" fill="${P.dark}" stroke="${P.line}" stroke-width="1.5"/>`;
+ let body='';
+
+ if(char==='fire'){
+  if(stage===0){ // 불이: 머리에 불씨 달린 둥근 병아리
+   body=`<g class="bob">
+    <g class="fl"><path d="M50 28 C41 20 45 9 50 5 C55 9 59 20 50 28Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="2"/>
+     <path d="M50 24 C46.5 20 48 15 50 12 C52 15 53.5 20 50 24Z" fill="#fff" opacity=".75"/></g>
+    ${feet}
+    <ellipse cx="50" cy="60" rx="29" ry="28" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="60" rx="29" ry="28" fill="url(#hl${id})"/>
+    <ellipse cx="50" cy="70" rx="15" ry="11" fill="${P.belly}" stroke="${P.line}" stroke-width="1.5"/>
+    ${eyes}${cheeks}${smileBaby}</g>`;
+  }else if(stage===1){ // 불끈이: 팔 걷어붙인 파이터
+   body=`<g class="bob">
+    <g class="fl"><path d="M50 24 C40 16 44 4 50 1 C56 4 60 16 50 24Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="2"/></g>
+    <path d="M28 34 L21 21 L36 27Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M72 34 L79 21 L64 27Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M34 64 Q22 60 20 50" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M66 64 Q78 60 80 50" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <g class="fl"><path d="M20 45 C17 40 18.5 35 20 32 C21.5 35 23 40 20 45Z" fill="${P.lite}"/></g>
+    <g class="fl"><path d="M80 45 C77 40 78.5 35 80 32 C81.5 35 83 40 80 45Z" fill="${P.lite}"/></g>
+    <circle cx="20" cy="48" r="6" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <circle cx="80" cy="48" r="6" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <rect x="39" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <rect x="53" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M34 60 Q50 54 66 60 L63 86 Q50 92 37 86Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="74" rx="10" ry="9" fill="${P.belly}"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#hl${id})"/>
+    ${eyes}${cheeks}
+    <path d="M44 55 q6 6 12 0" stroke="#3a3550" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
+  }else{ // 화룡킹: 뿔+갈기+꼬리불꽃의 직립 근육형 (날개 없음)
+   body=`<g class="bob">
+    <path d="M25 32 C16 24 18 12 25 8 C29 15 31 24 25 32Z" fill="${P.dark}" opacity=".9"/>
+    <path d="M75 32 C84 24 82 12 75 8 C71 15 69 24 75 32Z" fill="${P.dark}" opacity=".9"/>
+    <g class="fl"><path d="M50 22 C37 15 41 1 50 -3 C59 1 63 15 50 22Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="2"/></g>
+    <path d="M32 26 L25 11 L41 20Z" fill="${P.belly}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M68 26 L75 11 L59 20Z" fill="${P.belly}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M74 80 Q92 76 90 58" stroke="${P.dark}" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <g class="fl"><path d="M90 62 C84 54 87 45 90 41 C93 45 96 54 90 62Z" fill="${P.lite}" stroke="${P.dark}" stroke-width="2"/></g>
+    <path d="M30 62 Q16 66 14 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M70 62 Q84 66 86 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="14" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <circle cx="86" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M30 58 Q50 52 70 58 L66 88 Q50 96 34 88Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <path d="M40 63 Q50 69 60 63" stroke="${P.line}" stroke-width="2" fill="none" opacity=".55"/>
+    <path d="M50 68 l4.5 6.5 -4.5 6.5 -4.5 -6.5z" fill="${P.lite}" stroke="${P.line}" stroke-width="1.5"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#hl${id})"/>
+    ${eyes}${cheeks}
+    <path d="M42 55 q8 7 16 0" stroke="#3a3550" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M45 56.5 l2.5 3.5 2.5 -3.5" fill="#fff"/></g>`;
+  }
+ }else if(char==='water'){
+  if(stage===0){ // 방울이: 물방울 모양 아기
+   body=`<g class="bob">
+    ${feet}
+    <path d="M50 8 C63 26 79 42 79 61 A29 27 0 0 1 21 61 C21 42 37 26 50 8Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="61" rx="28" ry="26" fill="url(#hl${id})"/>
+    <ellipse cx="40" cy="32" rx="4.5" ry="8.5" fill="#fff" opacity=".55" transform="rotate(20 40 32)"/>
+    ${eyes}${cheeks}${smileBaby}</g>`;
+  }else if(stage===1){ // 파도리: 지느러미 귀 + 파도 무늬 서퍼
+   body=`<g class="bob">
+    <path d="M28 30 Q17 21 21 9 Q32 15 34 26Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M72 30 Q83 21 79 9 Q68 15 66 26Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M34 62 Q20 56 16 44" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M66 66 Q78 72 84 82" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <circle cx="16" cy="42" r="6" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <circle cx="84" cy="84" r="6" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <rect x="39" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <rect x="53" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M34 60 Q50 54 66 60 L63 86 Q50 92 37 86Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <path d="M39 73 q5.5 -5 11 0 q5.5 5 11 0" stroke="#fff" stroke-width="2.5" fill="none" opacity=".75" stroke-linecap="round"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#hl${id})"/>
+    <path d="M42 25 Q50 13 58 25Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    ${eyes}${cheeks}
+    <path d="M44 55 q6 6 12 0" stroke="#3a3550" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
+  }else{ // 해왕수: 삼지창 크레스트 + 어깨 지느러미 망토의 바다 수호자
+   body=`<g class="bob">
+    <path d="M50 2 L54.5 17 L50 12.5 L45.5 17Z" fill="${P.lite}" stroke="${P.line}" stroke-width="1.5"/>
+    <path d="M38 21 Q33 8 40 3 Q46 10 46 19Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M62 21 Q67 8 60 3 Q54 10 54 19Z" fill="${P.dark}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M27 56 Q10 61 8 80 Q23 76 31 67Z" fill="${P.dark}" opacity=".9" stroke="${P.line}" stroke-width="2"/>
+    <path d="M73 56 Q90 61 92 80 Q77 76 69 67Z" fill="${P.dark}" opacity=".9" stroke="${P.line}" stroke-width="2"/>
+    <path d="M30 62 Q16 66 14 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M70 62 Q84 66 86 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="14" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <circle cx="86" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M30 58 Q50 52 70 58 L66 88 Q50 96 34 88Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <path d="M38 70 q6 -5.5 12 0 q6 5.5 12 0" stroke="#fff" stroke-width="2.5" fill="none" opacity=".7" stroke-linecap="round"/>
+    <circle cx="50" cy="80" r="5" fill="${P.lite}" stroke="${P.line}" stroke-width="1.5"/>
+    <circle cx="48.5" cy="78.5" r="1.6" fill="#fff"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#hl${id})"/>
+    ${eyes}${cheeks}
+    <path d="M43 55 q7 6 14 0" stroke="#3a3550" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+  }
+ }else{ // grass
+  if(stage===0){ // 새싹이: 머리에 새싹 난 둥근 씨앗
+   body=`<g class="bob">
+    <g class="fl"><path d="M50 30 L50 16" stroke="${P.deep}" stroke-width="3" stroke-linecap="round"/>
+     <path d="M50 18 Q39 16 36 6 Q49 7 50 18Z" fill="${P.main}" stroke="${P.deep}" stroke-width="1.8"/>
+     <path d="M50 18 Q61 16 64 6 Q51 7 50 18Z" fill="${P.dark}" stroke="${P.deep}" stroke-width="1.8"/></g>
+    ${feet}
+    <ellipse cx="50" cy="60" rx="29" ry="28" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="60" rx="29" ry="28" fill="url(#hl${id})"/>
+    <path d="M22 66 Q50 78 78 66 L78 70 A29 28 0 0 1 22 70Z" fill="${P.deep}" opacity=".35"/>
+    ${eyes}${cheeks}${smileBaby}</g>`;
+  }else if(stage===1){ // 푸르미: 잎사귀 모자 + 잎 망토 소년
+   body=`<g class="bob">
+    <path d="M50 26 Q28 22 22 6 Q46 8 52 22Z" fill="${P.main}" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M50 26 Q72 22 78 6 Q54 8 48 22Z" fill="${P.dark}" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M30 58 Q14 66 16 84 Q30 80 36 70Z" fill="${P.dark}" opacity=".85" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M70 58 Q86 66 84 84 Q70 80 64 70Z" fill="${P.dark}" opacity=".85" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M34 62 Q22 58 20 48" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M66 62 Q78 58 80 48" stroke="${P.dark}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M20 50 Q14 44 16 38 Q23 42 24 48Z" fill="${P.main}" stroke="${P.deep}" stroke-width="1.8"/>
+    <path d="M80 50 Q86 44 84 38 Q77 42 76 48Z" fill="${P.main}" stroke="${P.deep}" stroke-width="1.8"/>
+    <rect x="39" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.deep}" stroke-width="2"/>
+    <rect x="53" y="82" width="8" height="14" rx="4" fill="${P.dark}" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M34 60 Q50 54 66 60 L63 86 Q50 92 37 86Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="74" rx="10" ry="9" fill="${P.belly}"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="44" rx="24" ry="21" fill="url(#hl${id})"/>
+    ${eyes}${cheeks}
+    <path d="M44 55 q6 6 12 0" stroke="#3a3550" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`;
+  }else{ // 숲정령: 꽃 크라운 + 큰 잎 칼라 + 덩굴 문양
+   body=`<g class="bob">
+    <path d="M28 34 Q10 30 6 14 Q28 16 34 30Z" fill="${P.dark}" stroke="${P.deep}" stroke-width="2"/>
+    <path d="M72 34 Q90 30 94 14 Q72 16 66 30Z" fill="${P.dark}" stroke="${P.deep}" stroke-width="2"/>
+    <g class="fl"><g transform="translate(50 10)">
+     <circle cx="-9" cy="4" r="4" fill="#ff9ecb"/><circle cx="9" cy="4" r="4" fill="#ffd66b"/><circle cx="0" cy="-1" r="5" fill="#fff"/>
+     <circle cx="-9" cy="4" r="1.6" fill="#fff"/><circle cx="9" cy="4" r="1.6" fill="#fff"/><circle cx="0" cy="-1" r="2" fill="#ffd66b"/></g></g>
+    <path d="M30 62 Q16 66 14 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M70 62 Q84 66 86 78" stroke="${P.dark}" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <circle cx="14" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <circle cx="86" cy="79" r="6.5" fill="${P.main}" stroke="${P.line}" stroke-width="2"/>
+    <path d="M30 58 Q50 52 70 58 L66 88 Q50 96 34 88Z" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <path d="M42 66 q6 4 4 10 q7 -3 10 3" stroke="${P.deep}" stroke-width="2" fill="none" opacity=".65" stroke-linecap="round"/>
+    <circle cx="58" cy="82" r="2.4" fill="${P.lite}"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#bd${id})" stroke="${P.line}" stroke-width="2.5"/>
+    <ellipse cx="50" cy="42" rx="25" ry="21" fill="url(#hl${id})"/>
+    ${eyes}${cheeks}
+    <path d="M43 55 q7 6 14 0" stroke="#3a3550" stroke-width="3" fill="none" stroke-linecap="round"/></g>`;
+  }
+ }
+ return `<svg id="${id}" viewBox="0 0 100 100" width="100%" height="100%">${style}${defs}${parts}${body}</svg>`;
+}
+/* 3단 진화 레벨 구간 */
+const STAGES=[{from:1},{from:7},{from:18}];
+function stageOf(lvl){let s=0;STAGES.forEach((st,i)=>{if(lvl>=st.from)s=i;});return s;}
+
+/* =================== EXERCISE CATALOG =================== */
+// impact: LOW/MID/HIGH  · anim: motion for placeholder figure
+const EX=[
+ {id:'swim',name:'수영 (자유형)',part:'LOWER',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'20분',anim:'swim',vid:'D5HPXIy-NFY',
+  desc:'무릎·관절에 부담이 거의 없는 최고의 전신 유산소예요.',how:'물속에서 팔을 크게 저으며 규칙적으로 호흡. 천천히 오래!',tags:['저충격','관절보호']},
+ {id:'chair-squat',name:'의자 스쿼트',part:'LOWER',goals:['FAT_LOSS','MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'12회 × 3세트',anim:'squat',vid:'FC-RnanqQg8',
+  desc:'의자에 살짝 앉았다 일어나는 안전한 하체 운동.',how:'의자 앞에 서서 엉덩이를 뒤로 빼며 앉기 직전까지 내렸다 일어서기.',tags:['저충격','초보']},
+ {id:'walk',name:'빠르게 걷기',part:'FULL',goals:['FAT_LOSS','STAMINA'],impact:'LOW',minLevel:1,reps:'25분',anim:'walk',vid:'z0gmkEFUdDA',
+  desc:'심박을 올리면서도 무릎에 무리가 적은 유산소.',how:'팔을 흔들며 약간 숨찰 정도의 속도로 꾸준히.',tags:['저충격','유산소']},
+ {id:'knee-pushup',name:'무릎 대고 푸시업',part:'UPPER',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'10회 × 3세트',anim:'pushup',vid:'XIZdCY0SKFM',
+  desc:'상체 근력을 키우는 기본 저항 운동의 쉬운 버전.',how:'무릎을 바닥에 대고 가슴이 바닥에 닿을 듯 내렸다 밀어올리기.',tags:['상체','근력']},
+ {id:'band-row',name:'밴드 로우',part:'UPPER',goals:['MUSCLE'],impact:'LOW',minLevel:1,reps:'12회 × 3세트',anim:'row',vid:'6XtVQ0s-xMw',
+  desc:'등과 팔을 탄탄하게. 굽은 등 교정에도 좋아요.',how:'밴드를 발에 걸고 손잡이를 배 쪽으로 당겨 날개뼈 모으기.',tags:['상체','자세교정']},
+ {id:'plank',name:'플랭크',part:'CORE',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'30초 × 3세트',anim:'plank',vid:'qrXF3cp0yls',
+  desc:'코어 전체를 잡아주는 대표 버티기 운동.',how:'팔꿈치와 발끝으로 몸을 일직선으로. 엉덩이가 처지지 않게!',tags:['코어','안정성']},
+ {id:'jumpingjack',name:'점핑잭',part:'FULL',goals:['STAMINA','FAT_LOSS'],impact:'HIGH',minLevel:3,reps:'30회 × 3세트',anim:'jack',vid:'AC9mHw71xEM',
+  desc:'전신 심폐 지구력을 빠르게 끌어올리는 유산소.',how:'점프하며 팔다리를 동시에 벌렸다 모으기.',tags:['전신','고강도']},
+ {id:'legraise',name:'레그레이즈',part:'CORE',goals:['MUSCLE'],impact:'LOW',minLevel:2,reps:'12회 × 3세트',anim:'legraise',vid:'JtfU70aO2f0',
+  desc:'하복부 코어를 집중 자극.',how:'누워서 다리를 곧게 펴 천천히 올렸다 내리기.',tags:['코어','복부']},
+ {id:'calf',name:'카프레이즈',part:'LOWER',goals:['MUSCLE','STAMINA'],impact:'LOW',minLevel:1,reps:'15회 × 3세트',anim:'calf',vid:'avAzEHwz0VY',
+  desc:'종아리 근력. 서서 어디서나 가능.',how:'발뒤꿈치를 천천히 최대한 들었다 내리기.',tags:['하체','초보']},
+];
+
+/* stretching routines (F4) */
+const STRETCH=[
+ {id:'neck',name:'거북목 교정',part:'목/어깨',time:'3분',anim:'neck',emo:'🙆',vid:'bYIqVivG9YA',
+  desc:'하루 종일 숙인 목을 시원하게 풀어요.',how:'턱을 뒤로 당기기 → 목을 좌우로 천천히 늘이기 → 어깨 으쓱 10회.',tags:['거북목','좌식']},
+ {id:'back',name:'굽은 등 펴기',part:'등/가슴',time:'3분',anim:'back',emo:'🧍',vid:'I5-148U9SuA',
+  desc:'의자 등받이를 활용해 굽은 등을 펴줍니다.',how:'등받이에 기대 가슴을 열고 흉추 펴기 → 날개뼈 모으기 10회.',tags:['자세교정','좌식']},
+ {id:'wrist',name:'손목·팔 이완',part:'손목/팔',time:'2분',anim:'wrist',emo:'🤚',vid:'hbBO5c44diY',
+  desc:'필기·타이핑으로 지친 손목을 풀어요.',how:'손목 털기 → 손목 돌리기 → 손가락 쭉 펴기.',tags:['손목','좌식']},
+ {id:'legcirc',name:'하체 순환',part:'다리',time:'2분',anim:'calf',emo:'🦵',vid:'er5Oxoi-X1g',
+  desc:'앉아서 굳은 다리 혈액순환을 도와요.',how:'앉아서 무릎 펴기 → 발목 펌프 → 종아리 늘이기.',tags:['하체','좌식']},
+];
+
+/* =================== STATE =================== */
+const KEY='movefit_v1';
+let S=load();
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||fresh();}catch(e){return fresh();}}
+function fresh(){return{onboarded:false,nickname:'무브짱',char:null,h:165,w:58,bmi:0,bmiClass:'NORMAL',goal:null,parts:[],
+  exp:0,streak:0,bestStreak:0,totalDone:0,lastCheckIn:null,checkDays:[],cooldowns:{}};}
+/* 키·몸무게 공통 검증 (온보딩·프로필 수정 공용) */
+function validateBody(h,w){return !!(h&&w&&h>=80&&h<=250&&w>=20&&w<=250);}
+function save(){localStorage.setItem(KEY,JSON.stringify(S));}
+
+/* level math: to advance from level L needs 50*(L+1) */
+function levelInfo(exp){let lvl=1,e=exp;while(e>=50*(lvl+1)){e-=50*(lvl+1);lvl++;}return{lvl,cur:e,need:50*(lvl+1)};}
+
+/* =================== BMI =================== */
+function classify(bmi){if(bmi<18.5)return'UNDER';if(bmi<23)return'NORMAL';if(bmi<25)return'OVER';return'OBESE';}
+const BMI_INFO={
+ UNDER:{ko:'저체중',msg:'조금 더 든든하게! 근력 운동과 영양을 함께 챙겨줄게.',pin:12},
+ NORMAL:{ko:'정상',msg:'아주 좋은 상태야! 목표에 맞게 균형 잡힌 운동을 추천할게.',pin:40},
+ OVER:{ko:'과체중',msg:'무릎에 무리 없는 저충격 운동 위주로 골라줄게.',pin:65},
+ OBESE:{ko:'비만',msg:'관절을 보호하는 저충격 유산소부터 천천히 시작하자!',pin:88},
+};
+
+/* =================== RECOMMENDATION ENGINE (3.5) ===================
+   전체 운동을 '적합도 점수' 순으로 정렬해 반환 (가장 잘 맞는 순).
+   과체중/비만은 고충격 운동을 안전 필터로 제외. */
+function recommend(){
+ let goal=S.goal;
+ if(S.bmiClass==='UNDER'&&goal==='FAT_LOSS') goal='STAMINA';
+ const parts=(S.parts&&S.parts.length)?S.parts:['FULL'];
+ let pool=EX.slice();
+ if(['OVER','OBESE'].includes(S.bmiClass)) pool=pool.filter(e=>e.impact!=='HIGH');
+ const lvl=levelInfo(S.exp).lvl;
+ const score=e=>{
+   let s=0;
+   if(e.goals.includes(goal)) s+=5;      // 목표 일치
+   if(parts.includes(e.part)) s+=3;      // 집중 부위 일치
+   if(e.part==='FULL') s+=1;             // 전신은 두루 적합
+   if(e.impact==='LOW') s+=0.5;          // 저충격 가산
+   if(e.minLevel>lvl) s-=100;            // 레벨 잠금 운동은 항상 목록 맨 뒤로
+   return s;
+ };
+ return pool.map(e=>({e,s:score(e)})).sort((a,b)=>b.s-a.s).map(x=>x.e);
+}
+
+/* =================== NAV =================== */
+const NAV=[['home','🏠','홈'],['stretch','🪑','스트레칭'],['growth','🌱','성장']];
+function buildNav(){
+ NAV.forEach(([,,])=>{});
+ ['home','stretch','growth'].forEach(cur=>{
+   const el=document.getElementById('nav-'+cur);if(!el)return;
+   el.innerHTML=NAV.map(([id,ic,label])=>
+     `<button class="${id===cur?'on':''}" onclick="go('${id}')"><span class="ic">${ic}</span>${label}</button>`).join('');
+ });
+}
+let current='onboard';
+function go(scr){
+ if(current==='player'&&scr!=='player'){const v=document.getElementById('pl-video');if(v)v.innerHTML='';} // stop video
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById('scr-'+scr).classList.add('active');
+ document.querySelector('#scr-'+scr+' .scroll').scrollTop=0;
+ current=scr;
+ if(scr==='home')renderHome();
+ if(scr==='stretch')renderStretch();
+ if(scr==='growth')renderGrowth();
+}
+let backTo='home';
+function back(){go(backTo);}
+
+/* =================== ONBOARDING =================== */
+const ob={
+ step:0,
+ render(){
+   document.querySelectorAll('.ob-step').forEach(s=>s.style.display=(+s.dataset.step===this.step)?'block':'none');
+   const dots=document.getElementById('ob-dots');
+   dots.innerHTML=[0,1,2,3,4,5].map(i=>`<div class="pd ${i===this.step?'on':''}"></div>`).join('');
+   document.getElementById('ob-back').style.display=this.step>0?'block':'none';
+ },
+ next(){this.step++;this.render();},
+ prev(){if(this.step>0){this.step--;this.render();}},
+ pickChar(el){
+   document.querySelectorAll('#char-opts .opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');
+   S.char=el.dataset.char;
+   document.getElementById('char-preview').style.display='block';
+   document.getElementById('char-preview-m').innerHTML=mascot(S.char,0,'m-prev');
+   document.getElementById('char-preview-evo').textContent=CHARS[S.char].stageNames.join('  →  ');
+   document.getElementById('char-next').disabled=false;
+ },
+ calcBmi(){
+   const h=+document.getElementById('in-h').value, w=+document.getElementById('in-w').value;
+   if(!validateBody(h,w)){toast('키(80~250cm)·몸무게(20~250kg)를 올바르게 입력해줘 🙏');return;}
+   S.nickname=(document.getElementById('in-nick').value||'무브짱').trim();
+   S.h=h; S.w=w;
+   const m=h/100; S.bmi=+(w/(m*m)).toFixed(1); S.bmiClass=classify(S.bmi);
+   const info=BMI_INFO[S.bmiClass];
+   document.getElementById('bmi-val').textContent=S.bmi;
+   document.getElementById('bmi-class').textContent=info.ko;
+   document.getElementById('bmi-msg').textContent=info.msg;
+   document.getElementById('bmi-pin').style.left=info.pin+'%';
+   document.getElementById('bmi-mascot').innerHTML=mascot(S.char,0,'m-bmi');
+   this.next();
+ },
+ pickGoal(el){document.querySelectorAll('#goal-opts .opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');
+   S.goal=el.dataset.goal;document.getElementById('goal-next').disabled=false;},
+ togglePart(el){el.classList.toggle('sel');
+   S.parts=[...document.querySelectorAll('#part-opts .opt.sel')].map(o=>o.dataset.part);
+   document.getElementById('part-next').disabled=S.parts.length===0;},
+ finish(){S.onboarded=true;checkIn();save();go('home');}
+};
+
+/* =================== HOME =================== */
+function renderHome(){
+ const li=levelInfo(S.exp), stg=stageOf(li.lvl);
+ document.getElementById('home-nick').textContent=S.nickname;
+ document.getElementById('home-lvl').textContent=li.lvl;
+ document.getElementById('home-exp').textContent=li.cur;
+ document.getElementById('home-need').textContent=li.need;
+ document.getElementById('home-mascot').innerHTML=mascot(S.char,stg,'m-home');
+ document.getElementById('home-stage').textContent=stageName(stg);
+ setTimeout(()=>{document.getElementById('home-expfill').style.width=(li.cur/li.need*100)+'%';},100);
+ document.getElementById('streak-n').textContent=S.streak;
+ // streak strip: last 7 days
+ const strip=document.getElementById('streak-strip');
+ const days=['일','월','화','수','목','금','토'];const today=new Date();
+ let html='';
+ for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);
+   const key=localDateKey(d);const on=S.checkDays.includes(key);const isToday=i===0;
+   html+=`<div class="day"><div class="dot ${on?'on':''} ${isToday?'today':''}">${on?'✓':''}</div>${days[d.getDay()]}</div>`;}
+ strip.innerHTML=html;
+ // recommendations (기본 3개, 더보기로 최대 9개, 적합도 순)
+ const ranked=recommend().slice(0,9);
+ const show=recExpanded?ranked:ranked.slice(0,3);
+ document.getElementById('rec-tag').style.display=['OVER','OBESE'].includes(S.bmiClass)?'inline-block':'none';
+ document.getElementById('rec-list').innerHTML=show.map(e=>recCard(e)).join('')||
+   '<div class="card"><span class="sub">추천 운동을 준비 중이에요.</span></div>';
+ const more=document.getElementById('rec-more');
+ if(ranked.length>3){ more.style.display='block'; more.textContent=recExpanded?'접기 ▲':`더보기 (+${ranked.length-3}개 운동) ▼`; }
+ else{ more.style.display='none'; }
+}
+let recExpanded=false;
+function toggleMore(){ recExpanded=!recExpanded; renderHome(); }
+function thumbHtml(item,pre){
+ // 썸네일 로드 실패(오프라인 등) 시 플레이스홀더 피규어로 대체
+ return item.vid?`<img src="https://i.ytimg.com/vi/${item.vid}/hqdefault.jpg" alt="" onerror="this.outerHTML=figureSVG('${item.anim}','${pre}${item.id}',true)">`:figureSVG(item.anim,pre+item.id,true);
+}
+function recCard(e){
+ const lvl=levelInfo(S.exp).lvl;
+ if(e.minLevel>lvl){ // 레벨 잠금: 클릭 시 해금 레벨 안내
+   return `<div class="card rec locked-ex" data-id="${e.id}" onclick="toast('Lv.${e.minLevel}에 해금되는 운동이에요 🔒 조금만 더 성장하자!')">
+   <div class="thumb">${thumbHtml(e,'t-')}</div>
+   <div class="meta"><h3>🔒 ${e.name}</h3><div class="sub">Lv.${e.minLevel}에 해금</div>
+   <div><span class="tag">${e.reps}</span>${e.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+   <div class="go">🔒</div></div>`;
+ }
+ const safe=['OVER','OBESE'].includes(S.bmiClass)&&e.impact==='LOW';
+ const rem=itemRemain(e.id), done=rem>0;
+ return `<div class="card rec ${done?'completed':''}" data-id="${e.id}" onclick="openPlayer('${e.id}','ex')">
+   <div class="thumb">${thumbHtml(e,'t-')}</div>
+   <div class="meta"><h3>${e.name}</h3><div class="sub">${e.reps}</div>
+   <div>${done?`<span class="tag done">✅ 완료 · <span class="cd-time">${fmtRemain(rem)} 후</span></span>`:''}${safe?'<span class="tag safe">무릎보호</span>':''}${e.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>
+   <div class="go">${done?'✓':'▶'}</div></div>`;
+}
+
+/* =================== STRETCH =================== */
+function renderStretch(){
+ document.getElementById('stretch-list').innerHTML=STRETCH.map(s=>{
+  const rem=itemRemain(s.id), done=rem>0;
+  return `<div class="card rec ${done?'completed':''}" data-id="${s.id}" onclick="openPlayer('${s.id}','st')">
+    <div class="thumb">${thumbHtml(s,'ts-')}</div>
+    <div class="meta"><h3>${s.emo} ${s.name}</h3><div class="sub">${s.part} · ${s.time}</div>
+    <div>${done?`<span class="tag done">✅ 완료 · <span class="cd-time">${fmtRemain(rem)} 후</span></span>`:''}${s.tags.map(t=>`<span class="tag safe">${t}</span>`).join('')}</div></div>
+    <div class="go">${done?'✓':'▶'}</div></div>`;}).join('');
+}
+/* 전체 루틴: 쿨다운 안 걸린 스트레칭을 큐로 순차 진행 */
+let routine=null; // {ids:[], idx}
+function startRoutine(){
+ const ids=STRETCH.filter(s=>itemRemain(s.id)<=0).map(s=>s.id);
+ if(!ids.length){toast('오늘 루틴은 모두 완료했어요! 쿨다운 후에 다시 💫');return;}
+ routine={ids,idx:0};
+ openPlayer(ids[0],'st',true);
+ toast(`전체 루틴 시작! ${ids.length}개 순서대로 가보자 💪`);
+}
+function routineNext(){
+ if(!routine)return false;
+ while(routine.idx<routine.ids.length-1){
+   routine.idx++;
+   const nid=routine.ids[routine.idx];
+   if(itemRemain(nid)<=0){setTimeout(()=>openPlayer(nid,'st',true),800);return true;}
+ }
+ routine=null;
+ toast('🎉 오늘의 루틴 완주! 최고야!');
+ return false;
+}
+
+/* =================== FIGURE / VIDEO PLACEHOLDER =================== */
+// a cute round figure that performs a looping motion (placeholder for real clip)
+function figureSVG(anim,id,small){
+ const size=small?'':'';
+ const dur=small?'1.4s':'1s';
+ // base body
+ const face=`<circle cx="50" cy="34" r="14" fill="#fff3d6" stroke="#ffe0a0" stroke-width="2"/>
+   <circle cx="45" cy="33" r="2" fill="#3a3550"/><circle cx="55" cy="33" r="2" fill="#3a3550"/>
+   <path d="M46 39 q4 3 8 0" stroke="#3a3550" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+ let g='';
+ const style=`<style>#${id} .act{transform-origin:50px 50px;animation:${anim}-${id} ${dur} ease-in-out infinite}
+   @keyframes ${anim}-${id}{${motionKF(anim)}}</style>`;
+ g=`<g class="act"><rect x="40" y="46" width="20" height="26" rx="9" fill="#5fd0c5"/>
+    <rect x="26" y="50" width="16" height="6" rx="3" fill="#8fe6da"/><rect x="58" y="50" width="16" height="6" rx="3" fill="#8fe6da"/>
+    <rect x="42" y="70" width="6" height="18" rx="3" fill="#4bbcae"/><rect x="52" y="70" width="6" height="18" rx="3" fill="#4bbcae"/>
+    ${face}</g>`;
+ return `<svg id="${id}" viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">${style}${g}</svg>`;
+}
+function motionKF(a){
+ switch(a){
+  case'squat':return'0%,100%{transform:translateY(0)}50%{transform:translateY(10px) scaleY(.9)}';
+  case'pushup':return'0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(6px) rotate(0)}';
+  case'jack':return'0%,100%{transform:scale(1)}50%{transform:scale(1.08) rotate(3deg)}';
+  case'walk':return'0%,100%{transform:translateX(-4px)}50%{transform:translateX(4px)}';
+  case'swim':return'0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}';
+  case'plank':return'0%,100%{transform:rotate(0)}50%{transform:rotate(-2deg)}';
+  case'row':return'0%,100%{transform:translateX(0)}50%{transform:translateX(-5px)}';
+  case'legraise':return'0%,100%{transform:rotate(0)}50%{transform:rotate(6deg)}';
+  case'calf':return'0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}';
+  case'neck':return'0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}';
+  case'back':return'0%,100%{transform:translateY(0)}50%{transform:translateY(-4px) scaleY(1.04)}';
+  case'wrist':return'0%,100%{transform:rotate(-10deg)}50%{transform:rotate(10deg)}';
+  default:return'0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}';
+ }
+}
+
+/* =================== PLAYER =================== */
+let curItem=null,curType=null;
+function openPlayer(id,type,keepRoutine){
+ if(!keepRoutine)routine=null; // 카드로 직접 열면 루틴 모드 해제
+ if(current!=='player')backTo=current;
+ curType=type;
+ curItem=(type==='ex'?EX:STRETCH).find(x=>x.id===id);
+ document.getElementById('pl-name').textContent=(curType==='st'?curItem.emo+' ':'')+curItem.name;
+ const stage=document.getElementById('pl-stage'), vwrap=document.getElementById('pl-video');
+ const yt=document.getElementById('pl-yt');
+ if(curItem.vid){
+   stage.classList.add('hasvid');
+   document.getElementById('pl-badge').style.display='none';
+   vwrap.innerHTML=`<iframe src="https://www.youtube.com/embed/${curItem.vid}?rel=0&playsinline=1&modestbranding=1" title="${curItem.name}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+   yt.href='https://www.youtube.com/shorts/'+curItem.vid; yt.style.display='block';
+ }else{
+   stage.classList.remove('hasvid');
+   document.getElementById('pl-badge').style.display='';
+   vwrap.innerHTML='';
+   document.getElementById('pl-figure').innerHTML=figureSVG(curItem.anim,'pl-fig');
+   yt.style.display='none';
+ }
+ document.getElementById('pl-desc').textContent=curItem.desc;
+ document.getElementById('pl-how').textContent=curItem.how;
+ document.getElementById('pl-tags').innerHTML=(curItem.tags||[]).map(t=>`<span class="pill on">${t}</span>`).join('')
+   +`<span class="pill">${curType==='ex'?curItem.reps:curItem.time}</span>`;
+ player.reset();
+ renderDoneBtn();
+ startCd();
+ go('player');
+}
+
+/* ---- EXP earn rule: 같은 운동은 완료 후 COOLDOWN 동안 재획득 불가 ---- */
+const COOLDOWN_MS=3*60*60*1000;   // 같은 운동 재획득 쿨다운 3시간
+let cdTimer=null;
+function itemRemain(id){
+ const t=(S.cooldowns||{})[id];
+ if(!t)return 0;
+ const r=COOLDOWN_MS-(Date.now()-t);
+ return r>0?r:0;
+}
+function fmtRemain(ms){
+ if(ms<60000){return `${Math.ceil(ms/1000)}초`;}
+ const m=Math.ceil(ms/60000);
+ if(m>=60){const h=Math.floor(m/60),mm=m%60;return mm?`${h}시간 ${mm}분`:`${h}시간`;}
+ return `${m}분`;
+}
+function cdLabel(){return fmtRemain(COOLDOWN_MS);}
+function renderDoneBtn(){
+ const btn=document.getElementById('pl-done'), note=document.getElementById('pl-note');
+ const exp=curType==='ex'?10:15;
+ const remain=itemRemain(curItem.id);
+ if(remain>0){
+   btn.disabled=true; btn.classList.add('done');
+   btn.innerHTML=`✅ 완료함 · ${fmtRemain(remain)} 후 다시`;
+   note.textContent='이미 EXP를 받았어요. 다른 운동도 해볼까요? 💫';
+ }else{
+   btn.disabled=false; btn.classList.remove('done');
+   btn.innerHTML=`✅ 완료했어요! (+${exp} EXP)`;
+   note.textContent=`완료하면 +${exp} EXP · 같은 운동은 완료 후 ${cdLabel()} 뒤 다시 받을 수 있어요`;
+ }
+}
+function startCd(){ renderDoneBtn(); }
+// 전역 라이브 틱: 쿨다운 남은 시간을 매초 갱신 (썸네일 깜빡임 없이 텍스트만 업데이트)
+setInterval(()=>{
+ if(current==='player'&&curItem){ renderDoneBtn(); return; }
+ if(current==='home'||current==='stretch'){
+   const listId=current==='home'?'rec-list':'stretch-list';
+   let expired=false;
+   document.querySelectorAll('#'+listId+' .rec.completed').forEach(card=>{
+     const rem=itemRemain(card.dataset.id);
+     if(rem<=0){ expired=true; }
+     else{ const s=card.querySelector('.cd-time'); if(s) s.textContent=fmtRemain(rem)+' 후'; }
+   });
+   if(expired){ current==='home'?renderHome():renderStretch(); } // 쿨다운 끝난 카드만 새로고침
+ }
+},1000);
+const player={
+ playing:false,t:0,timer:null,
+ reset(){this.playing=false;this.t=0;clearInterval(this.timer);
+   document.getElementById('pl-play').style.display='grid';
+   document.getElementById('pl-play').textContent='▶';
+   document.getElementById('pl-rep').innerHTML='';
+   document.getElementById('pl-ring').innerHTML='';
+   const fig=document.getElementById('pl-fig');if(fig)fig.style.animationPlayState='paused';
+ },
+ toggle(){
+   if(this.playing){this.pause();return;}
+   this.playing=true;
+   document.getElementById('pl-play').style.display='none';
+   const total=20;this.t=0;
+   this.tick(total);
+   this.timer=setInterval(()=>{this.t++;this.tick(total);if(this.t>=total){this.pause();document.getElementById('pl-play').textContent='↻';}},1000);
+ },
+ pause(){this.playing=false;clearInterval(this.timer);document.getElementById('pl-play').style.display='grid';},
+ tick(total){
+   const pct=Math.round(this.t/total*100);
+   document.getElementById('pl-rep').innerHTML=`<b>${this.t}</b>초 · 따라해봐요!`;
+   const r=44,c=2*Math.PI*r,off=c*(1-this.t/total);
+   document.getElementById('pl-ring').innerHTML=
+    `<svg width="52" height="52" viewBox="0 0 100 100"><circle cx="50" cy="50" r="${r}" fill="none" stroke="#ffffffaa" stroke-width="10"/>
+     <circle cx="50" cy="50" r="${r}" fill="none" stroke="#ff6b6b" stroke-width="10" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 50 50)"/>
+     <text x="50" y="58" text-anchor="middle" font-size="26" fill="#3a3550" font-family="Jua">${pct}</text></svg>`;
+ },
+ complete(){
+   if(itemRemain(curItem.id)>0){ renderDoneBtn(); toast(`아직 쿨다운 중이에요 · ${fmtRemain(itemRemain(curItem.id))} 후 다시 ⏳`); return; }
+   this.pause();
+   const exp=curType==='ex'?10:15;
+   const before=levelInfo(S.exp).lvl, beforeStage=stageOf(before);
+   S.exp+=exp; S.totalDone++;
+   S.cooldowns=S.cooldowns||{}; S.cooldowns[curItem.id]=Date.now();
+   checkIn();
+   const after=levelInfo(S.exp), afterStage=stageOf(after.lvl);
+   save();
+   renderDoneBtn();
+   confetti();
+   if(after.lvl>before){ showLevelUp(after.lvl, afterStage>beforeStage); }
+   else if(routine){ if(routineNext())toast(`<span class="exp">+${exp} EXP</span>! 다음 스트레칭으로 →`); }
+   else { toast(`잘했어! <span class="exp">+${exp} EXP</span> 🎉`); }
+ }
+};
+
+/* =================== CHECK-IN / STREAK =================== */
+/* 로컬 기준 y-m-d (toISOString은 UTC라 자정~오전9시 날짜가 어제로 찍히는 버그 방지) */
+function localDateKey(d=new Date()){const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function checkIn(){
+ const today=localDateKey();
+ if(S.lastCheckIn===today)return;
+ const y=new Date();y.setDate(y.getDate()-1);const yk=localDateKey(y);
+ S.streak=(S.lastCheckIn===yk)?S.streak+1:1;
+ S.bestStreak=Math.max(S.bestStreak,S.streak);
+ S.lastCheckIn=today; if(!S.checkDays.includes(today))S.checkDays.push(today);
+}
+
+/* =================== GROWTH =================== */
+function renderGrowth(){
+ const li=levelInfo(S.exp), stg=stageOf(li.lvl);
+ document.getElementById('growth-mascot').innerHTML=mascot(S.char,stg,'m-grow');
+ document.getElementById('growth-lvl').textContent=li.lvl;
+ const next=STAGES[stg+1];
+ document.getElementById('growth-next').textContent=next?`다음 진화까지 Lv.${next.from} (앞으로 ${next.from-li.lvl}레벨!)`:'최종 진화 완료! 🌟 최고야!';
+ document.getElementById('dex').innerHTML=STAGES.map((st,i)=>{
+   const unlocked=li.lvl>=st.from;
+   return `<div class="dexc ${unlocked?'':'locked'} ${i===stg?'cur':''}">
+     ${unlocked?'':'<span class="lockmark">🔒</span>'}
+     <div class="mini">${mascot(S.char,i,'dex'+i)}</div>
+     <div style="font-size:13px;">${stageName(i)}</div><div class="lv">Lv.${st.from}+</div></div>`;
+ }).join('');
+ document.getElementById('stat-total').textContent=S.totalDone;
+ document.getElementById('stat-streak').textContent=S.bestStreak;
+ document.getElementById('stat-exp').textContent=S.exp;
+ renderProfileCard();
+}
+const GOAL_KO={MUSCLE:'💪 근육량 증가',FAT_LOSS:'🔥 체지방 감소',STAMINA:'⚡ 체력 증진'};
+const PART_KO={UPPER:'상체',LOWER:'하체',CORE:'코어/복부',FULL:'전신'};
+function renderProfileCard(){
+ const partTxt=(S.parts&&S.parts.length)?S.parts.map(p=>PART_KO[p]).join(', '):'전신';
+ document.getElementById('profile-card').innerHTML=
+  `<div class="prow"><span class="k">닉네임</span><span class="v">${S.nickname}</span></div>
+   <div class="prow"><span class="k">키 / 몸무게</span><span class="v">${S.h}cm · ${S.w}kg</span></div>
+   <div class="prow"><span class="k">BMI</span><span class="v">${S.bmi} (${BMI_INFO[S.bmiClass].ko})</span></div>
+   <div class="prow"><span class="k">목표</span><span class="v">${GOAL_KO[S.goal]||'-'}</span></div>
+   <div class="prow"><span class="k">집중 부위</span><span class="v">${partTxt}</span></div>`;
+}
+
+/* =================== EDIT PROFILE =================== */
+const editP={
+ open(){
+   document.getElementById('ed-nick').value=S.nickname;
+   document.getElementById('ed-h').value=S.h;
+   document.getElementById('ed-w').value=S.w;
+   document.querySelectorAll('#ed-goal .opt').forEach(o=>o.classList.toggle('sel',o.dataset.goal===S.goal));
+   document.querySelectorAll('#ed-part .opt').forEach(o=>o.classList.toggle('sel',S.parts.includes(o.dataset.part)));
+   this._goal=S.goal; this._parts=[...S.parts];
+   document.getElementById('edit-bg').classList.add('show');
+ },
+ close(e){if(e&&e.type==='click'&&e.target!==document.getElementById('edit-bg'))return;
+   document.getElementById('edit-bg').classList.remove('show');},
+ pickGoal(el){document.querySelectorAll('#ed-goal .opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');this._goal=el.dataset.goal;},
+ togglePart(el){el.classList.toggle('sel');this._parts=[...document.querySelectorAll('#ed-part .opt.sel')].map(o=>o.dataset.part);},
+ save(){
+   const h=+document.getElementById('ed-h').value, w=+document.getElementById('ed-w').value;
+   if(!validateBody(h,w)){toast('키(80~250cm)·몸무게(20~250kg)를 올바르게 입력해줘 🙏');return;}
+   if(!this._goal){toast('목표를 하나 골라줘 🎯');return;}
+   S.nickname=(document.getElementById('ed-nick').value||'무브짱').trim();
+   S.h=h; S.w=w; const m=h/100; S.bmi=+(w/(m*m)).toFixed(1); S.bmiClass=classify(S.bmi);
+   S.goal=this._goal; S.parts=this._parts;
+   save();
+   this.close();
+   renderGrowth();
+   toast('저장 완료! 추천을 새로 맞췄어 ✨');
+ }
+};
+
+/* =================== OVERLAYS / FX =================== */
+function showLevelUp(lvl,evolved){
+ const stg=stageOf(lvl);
+ document.getElementById('ov-burst').textContent=evolved?'★ EVOLUTION ★':'LEVEL UP!';
+ document.getElementById('ov-title').textContent=evolved?stageName(stg):'Lv.'+lvl;
+ const m=document.getElementById('ov-mascot');
+ m.innerHTML=mascot(S.char,stg,'m-ov');
+ m.classList.toggle('reveal',!!evolved); // 진화 시 실루엣→빛→공개 3막 연출
+ if(evolved){const f=document.getElementById('ov-flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+ document.getElementById('ov-msg').textContent=evolved?`파트너가 ${stageName(stg)}(으)로 진화했어! 🎉`:`레벨 ${lvl} 달성! 새로운 운동이 해금됐을 수도 있어.`;
+ document.getElementById('overlay').classList.add('show');
+ confetti();confetti();
+}
+function closeOverlay(){document.getElementById('overlay').classList.remove('show');if(!routineNext())go(backTo);}
+function toast(html){const t=document.getElementById('toast');t.innerHTML=html;t.classList.add('show');
+ clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200);}
+function confetti(){
+ const colors=['#ff8a8a','#ffd66b','#5fd0c5','#6ec5ff','#b48cff','#ff9ecb'];
+ const app=document.getElementById('app');
+ const aw=app.clientWidth||390;
+ for(let i=0;i<40;i++){const c=document.createElement('div');c.className='confetti';
+   c.style.left=Math.random()*aw+'px';c.style.background=colors[i%colors.length];
+   c.style.animation=`fall ${1+Math.random()*1.2}s ${Math.random()*.3}s ease-in forwards`;
+   c.style.transform=`rotate(${Math.random()*360}deg)`;
+   app.appendChild(c);setTimeout(()=>c.remove(),2600);}
+}
+
+/* =================== 홈 캐릭터 탭 리액션 =================== */
+const CHEERS=['오늘도 파이팅! 💪','같이 운동하자! 🏃','꾸준함이 최고야 ✨','너 정말 잘하고 있어! 🎉','다음 진화가 기대돼! 🌟'];
+function mascotTap(){
+ const m=document.getElementById('home-mascot');
+ m.classList.remove('hop');void m.offsetWidth;m.classList.add('hop');
+ setTimeout(()=>m.classList.remove('hop'),600);
+ toast(CHEERS[Math.floor(Math.random()*CHEERS.length)]);
+}
+
+/* =================== 기존 사용자 마이그레이션: 파트너 선택 시트 =================== */
+const charPick={
+ sel:null,
+ open(){
+   document.getElementById('mig-opts').innerHTML=['fire','water','grass'].map(c=>{
+     const C=CHARS[c];
+     return `<div class="opt" data-char="${c}" onclick="charPick.pick(this)"><div class="emo" style="padding:2px;"><div style="width:42px;height:42px;">${mascot(c,0,'m-mig-'+c)}</div></div><div><div class="t">${C.ko} ${C.emo}</div><div class="d">${C.desc}</div></div></div>`;
+   }).join('');
+   document.getElementById('mig-save').disabled=true;
+   document.getElementById('char-bg').classList.add('show');
+ },
+ pick(el){document.querySelectorAll('#mig-opts .opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');this.sel=el.dataset.char;document.getElementById('mig-save').disabled=false;},
+ save(){if(!this.sel)return;S.char=this.sel;save();document.getElementById('char-bg').classList.remove('show');renderHome();toast(`${charInfo().ko}랑 파트너가 됐어! ${charInfo().emo}`);}
+};
+
+/* =================== RESET =================== */
+function resetAll(){document.getElementById('reset-bg').classList.add('show');}
+function doReset(){localStorage.removeItem(KEY);S=fresh();ob.step=0;document.getElementById('reset-bg').classList.remove('show');go('onboard');ob.render();}
+
+/* =================== BOOT =================== */
+S.cooldowns=S.cooldowns||{};
+buildNav();
+['fire','water','grass'].forEach(c=>{ // 환영 트리오 + 선택 카드 미니 마스코트
+ const w=document.getElementById('wel-'+c); if(w)w.innerHTML=mascot(c,0,'m-wel-'+c);
+ const o=document.getElementById('co-'+c); if(o)o.innerHTML=mascot(c,0,'m-co-'+c);
+});
+ob.render();
+if(S.onboarded){go('home');if(!S.char)charPick.open();} // 구버전 데이터: 파트너 1회 선택
+else{go('onboard');document.getElementById('scr-onboard').classList.add('active');}
+</script>
+</body>
+</html>
